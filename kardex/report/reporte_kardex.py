@@ -110,6 +110,7 @@ class ReporteKardex(models.AbstractModel):
                         except:
                             pass
                     lineas.append(detalle)
+        lineas = sorted(lineas, key=lambda x: x['fecha'])
             #else:
             #    raise ValidationError("No se encuentra ningun movimiento en ninguna ubicacion seleccionada")
 

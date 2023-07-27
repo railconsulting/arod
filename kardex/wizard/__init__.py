@@ -1,1 +1,1 @@
-from . import asistente_kardex
+from . import kardex_wizard

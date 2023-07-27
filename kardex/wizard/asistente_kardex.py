@@ -12,19 +12,15 @@ class AsistenteKardex(models.TransientModel):
     _name = 'asistente.kardex'
     _description = 'Kardex'
 
-    def _default_product(self):
-        if len(self.env.context.get('active_ids', [])) > 0:
-            return self.env.context.get('active_ids')[0]
-        else:
-            return None
+
 
     company_id = fields.Many2one('res.company', string="Company", default=lambda self: self.env.user.company_id.id, required=True)
-    warehouse_ids = fields.Many2many('stock.warehouse', string="Almacen", required=True)
+    warehouse_ids = fields.Many2many('stock.warehouse', string="Almacen")
     #ubicacion_id = fields.Many2one("stock.location", string="Ubicacion", required=True)
     location_ids = fields.Many2many("stock.location", string="Ubicaciones")
-    product_ids = fields.Many2many("product.product", string="Productos", required=True, domain=[('detailed_type','in',['consu','product'])])
-    date_from = fields.Datetime(string="Fecha Inicial", required=True)
-    date_to = fields.Datetime(string="Fecha Final", required=True)
+    product_ids = fields.Many2many("product.product", string="Productos", domain=[('detailed_type','in',['consu','product'])])
+    date_from = fields.Datetime(string="Fecha Inicial" )
+    date_to = fields.Datetime(string="Fecha Final")
     xls_file = fields.Binary(string="Data")
     name = fields.Char(string='File Name', readonly=True)
 
@@ -153,15 +149,18 @@ class AsistenteKardex(models.TransientModel):
             'name': xls_filename + ".xlsx"
         })
 
-    def xls_export_dwn(self):
+    def click_button(self):
         self._xlsx_kardex()
-        xls_filename = "Kardex " + self.env.company.name + " " + str(self.date_from.strftime('%d/%m/%Y')) + "_" + str(self.date_to.strftime('%d/%m/%Y'))
-
         return {
-            'name': xls_filename,
-            'type': 'ir.actions.act_url',
-            'url': "/web/content/?model=asistente.kardex&id=" + str(self.id) + "&field=xls_file&download=true&filename=" + xls_filename + ".xlsx",
-            'target': 'self',
+            'name': 'Same title',
+            'view_mode': 'form',
+            'view_id': False,
+            'res_model': self._name,
+            'domain': [],
+            'context': dict(self._context, active_ids=self.ids),
+            'type': 'ir.actions.act_window',
+            'target': 'new',
+            'res_id': self.id,
         }
 
     """ def reporte_tree_view(self):
