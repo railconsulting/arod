@@ -95,6 +95,13 @@ class AsistenteKardex(models.TransientModel):
             'text_wrap': True,
             'num_format': 2,
         })
+        calibri_12_blue = book.add_format({
+            'font_name': 'Calibri',
+            'font_size': 12,
+            'text_wrap': True,
+            'num_format': 2,
+            'font_color': 'blue'
+        })
         calibri_10 = book.add_format({
             'font_name': 'Calibri',
             'font_size': 10,
@@ -140,13 +147,13 @@ class AsistenteKardex(models.TransientModel):
         if self.product_ids:
             products = self.product_ids
         else:
-            products = self.env['product.product'].search()
+            products = self.env['product.product'].search([])
 
         for p in products:
             result = self.env['report.kardex.reporte_kardex'].get_lines(data, p.id)
 
-            sheet.write(row, 0, 'PRODUCTO:', calibri_12)
-            sheet.write(row, 1, p.display_name, calibri_12_bold)
+            sheet.write(row, 0, 'PRODUCTO:', calibri_12_blue)
+            sheet.merge_range(row, 1, row, 12, p.display_name, calibri_12_blue)
             sheet.write(row, 2, p.barcode if p.barcode else '', calibri_12_bold)
             row += 1
             sheet.write(row, 0, 'Inicial:', calibri_12)
