@@ -5,20 +5,21 @@
         <field name="inherit_id" ref="sale.view_order_form"/>
         <field name="arch" type="xml">
             <xpath expr="//header/button[@name='action_confirm'][1]" position="attributes">
-                <attribute name="attrs">{'invisible': ['|',('state', 'not in', ['sent']),('partner_credit_warning','!=',False)]}</attribute>
+                <attribute name="attrs">{'invisible': ['|',('state', 'not in', ['sent']),('credit_limit_restriction','!=',False)]}</attribute>
             </xpath>
             <xpath expr="//header/button[@name='action_confirm'][2]" position="attributes">
-                <attribute name="attrs">{'invisible': ['|',('state', 'not in', ['draft']),('partner_credit_warning','!=',False)]}</attribute>
+                <attribute name="attrs">{'invisible': ['|',('state', 'not in', ['draft']),('credit_limit_restriction','!=',False)]}</attribute>
             </xpath>
             <xpath expr="//header/button[@name='action_confirm'][2]" position="after">
                 <field name="partner_credit_warning" invisible="1"/>
+                <field name="credit_limit_restriction" invisible="1"/>
                 <button 
                     name="%(rail_credit_limit_approval.sale_approval_wizard_action)d"
                     type="action"
                     string="Confirmar"
                     id="action_confirm_credit_approval" 
                     context="{'default_order_id': id, 'default_partner_credit_warning': partner_credit_warning}"
-                    states="draft,sent"
+                    attrs="{'invisible':['|',('state','not in', ['draft','sent']),('credit_limit_restriction','=',False)]}"
                 />
             </xpath>
         </field>
