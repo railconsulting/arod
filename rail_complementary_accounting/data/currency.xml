@@ -1,0 +1,16 @@
+<odoo>
+    <data>
+        <record id="US$" model="res.currency">
+            <field name="name">US$</field>
+            <field name="full_name">United States dollar</field>
+            <field name="symbol">$</field>
+            <field name="rounding">0.01</field>
+            <field name="position">before</field>
+            <field name="active">True</field>
+            <field name="complementary_currency">True</field>
+            <field name="currency_unit_label">Dolares</field>
+            <field name="currency_subunit_label">Centavos</field>
+            <field name="rate">1.00</field>
+        </record>
+    </data>
+</odoo>

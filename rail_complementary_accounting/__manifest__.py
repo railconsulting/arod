@@ -18,6 +18,9 @@
     # always loaded
     'data': [
         # 'security/ir.model.access.csv',
+        'data/currency.xml',
+        'views/res_currency.xml',
+        'views/res_config_settings.xml',
         'views/account_journal.xml',
         'views/partner.xml',
         'views/account_move.xml',

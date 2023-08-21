@@ -6,9 +6,8 @@
         <field name="inherit_id" ref="account.view_account_journal_form"/>
         <field name="arch" type="xml">
             <xpath expr="//page[@name='advanced_settings']/group[1]" position="inside">
-                <group name="complementary_accounting" string="Asientos complementarios">
-                    <field name="complementary_entry"/>
-                    <field name="complementary_account_id" attrs="{'invisible':[('complementary_entry','=',False)],'required':[('complementary_entry','=',True)]}"/>
+                <group name="complementary_accounting" string="Contabilidad complementaria">
+                    <field name="complementary_account_id"/>
                 </group>
             </xpath>
         </field>
