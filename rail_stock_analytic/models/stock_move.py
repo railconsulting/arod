@@ -1,12 +1,7 @@
-# Copyright 2013 Julius Network Solutions
-# Copyright 2015 Clear Corp
-# Copyright 2016 OpenSynergy Indonesia
-# Copyright 2017 ForgeFlow S.L.
-# Copyright 2018 Hibou Corp.
-# Copyright 2023 Quartile Limited
 # License AGPL-3.0 or later (http://www.gnu.org/licenses/agpl.html).
 
 from odoo import api, models
+from odoo.exceptions import ValidationError
 
 
 class StockMove(models.Model):
@@ -20,7 +15,14 @@ class StockMove(models.Model):
         res = super(StockMove, self)._prepare_account_move_line(
             qty, cost, credit_account_id, debit_account_id, svl_id, description
         )
-        if not self.analytic_distribution:
+        #raise ValidationError("Cuenta:" + str(self.picking_id.account_id.name) +"\n" + "Analitica: " + str(self.picking_id.account_analytic_id.name))
+        check = False
+        if self.picking_id.account_id:
+            check = True
+        elif self.analytic_distribution:
+            check = True
+        
+        if not check:
             return res
         for line in res:
             if (
@@ -28,7 +30,15 @@ class StockMove(models.Model):
                 != self.product_id.categ_id.property_stock_valuation_account_id.id
             ):
                 # Add analytic account in debit line
-                line[2].update({"analytic_distribution": self.analytic_distribution})
+                if self.picking_id and self.picking_id.account_id:
+                    line[2].update({"account_id": self.picking_id.account_id.id})
+                if self.picking_id and self.picking_id.account_analytic_id:
+                    analytic_distribution = {
+                        self.picking_id.account_analytic_id.id: 100
+                    }
+                else:
+                    analytic_distribution = self.analytic_distribution
+                line[2].update({"analytic_distribution": analytic_distribution})
         return res
 
     def _prepare_procurement_values(self):
@@ -37,12 +47,18 @@ class StockMove(models.Model):
         moves through procurement.
         """
         res = super()._prepare_procurement_values()
-        if self.analytic_distribution:
-            res.update(
-                {
-                    "analytic_distribution": self.analytic_distribution,
-                }
-            )
+        if self.picking_id.account_id:
+            res.update({
+                "account_id": self.picking_id.account_id.id
+            })
+        if self.picking_id.analytic_account_id and not self.analytic_ids:
+            res.update({
+                "analytic_disctribution": {self.picking_id.account_analytic_id.id: 100},
+            })
+        if self.analytic_distribution and not self.picking_id.analytic_account_id:
+            res.update({
+                "analytic_distribution": self.analytic_distribution,
+            })
         return res
 
     def _prepare_move_line_vals(self, quantity=None, reserved_quant=None):
@@ -53,8 +69,18 @@ class StockMove(models.Model):
         res = super()._prepare_move_line_vals(
             quantity=quantity, reserved_quant=reserved_quant
         )
-        if self.analytic_distribution:
-            res.update({"analytic_distribution": self.analytic_distribution})
+        if self.picking_id.account_id:
+            res.update({
+                "account_id": self.picking_id.account_id.id
+            })
+        if self.picking_id.analytic_account_id and not self.analytic_ids:
+            res.update({
+                "analytic_disctribution": {self.picking_id.account_analytic_id.id: 100},
+            })
+        if self.analytic_distribution and not self.picking_id.analytic_account_id:
+            res.update({
+                "analytic_distribution": self.analytic_distribution,
+            })
         return res
 
     def _action_done(self, cancel_backorder=False):
@@ -86,6 +112,16 @@ class StockMoveLine(models.Model):
         new move created here with the analytic account if filled in.
         """
         res = super()._prepare_stock_move_vals()
-        if self.analytic_distribution:
-            res.update({"analytic_distribution": self.analytic_distribution})
+        if self.picking_id.account_id:
+            res.update({
+                "account_id": self.picking_id.account_id.id
+            })
+        if self.picking_id.analytic_account_id and not self.analytic_ids:
+            res.update({
+                "analytic_disctribution": {self.picking_id.account_analytic_id.id: 100},
+            })
+        if self.analytic_distribution and not self.picking_id.analytic_account_id:
+            res.update({
+                "analytic_distribution": self.analytic_distribution,
+            })
         return res
