@@ -69,10 +69,10 @@ class StockMove(models.Model):
         res = super()._prepare_move_line_vals(
             quantity=quantity, reserved_quant=reserved_quant
         )
-        if self.picking_id.account_id:
+        """ if self.picking_id.account_id:
             res.update({
                 "account_id": self.picking_id.account_id.id
-            })
+            }) """
         if self.picking_id.analytic_account_id and not self.analytic_ids:
             res.update({
                 "analytic_disctribution": {self.picking_id.analytic_account_id.id: 100},
