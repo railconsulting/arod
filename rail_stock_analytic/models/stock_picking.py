@@ -11,4 +11,4 @@ class StockPicking(models.Model):
         return super().button_validate()
     
     account_id = fields.Many2one('account.account', "Cuenta contable", domain=[('account_type','=','expense')])
-    account_analytic_id = fields.Many2one('account.analytic.account', "Analitica")
+    analytic_account_id = fields.Many2one('account.analytic.account', "Analitica")

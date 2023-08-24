@@ -15,7 +15,7 @@ class StockMove(models.Model):
         res = super(StockMove, self)._prepare_account_move_line(
             qty, cost, credit_account_id, debit_account_id, svl_id, description
         )
-        #raise ValidationError("Cuenta:" + str(self.picking_id.account_id.name) +"\n" + "Analitica: " + str(self.picking_id.account_analytic_id.name))
+        #raise ValidationError("Cuenta:" + str(self.picking_id.account_id.name) +"\n" + "Analitica: " + str(self.picking_id.analytic_account_id.name))
         check = False
         if self.picking_id.account_id:
             check = True
@@ -32,9 +32,9 @@ class StockMove(models.Model):
                 # Add analytic account in debit line
                 if self.picking_id and self.picking_id.account_id:
                     line[2].update({"account_id": self.picking_id.account_id.id})
-                if self.picking_id and self.picking_id.account_analytic_id:
+                if self.picking_id and self.picking_id.analytic_account_id:
                     analytic_distribution = {
-                        self.picking_id.account_analytic_id.id: 100
+                        self.picking_id.analytic_account_id.id: 100
                     }
                 else:
                     analytic_distribution = self.analytic_distribution
@@ -53,7 +53,7 @@ class StockMove(models.Model):
             })
         if self.picking_id.analytic_account_id and not self.analytic_ids:
             res.update({
-                "analytic_disctribution": {self.picking_id.account_analytic_id.id: 100},
+                "analytic_disctribution": {self.picking_id.analytic_account_id.id: 100},
             })
         if self.analytic_distribution and not self.picking_id.analytic_account_id:
             res.update({
@@ -75,7 +75,7 @@ class StockMove(models.Model):
             })
         if self.picking_id.analytic_account_id and not self.analytic_ids:
             res.update({
-                "analytic_disctribution": {self.picking_id.account_analytic_id.id: 100},
+                "analytic_disctribution": {self.picking_id.analytic_account_id.id: 100},
             })
         if self.analytic_distribution and not self.picking_id.analytic_account_id:
             res.update({
@@ -118,7 +118,7 @@ class StockMoveLine(models.Model):
             })
         if self.picking_id.analytic_account_id and not self.analytic_ids:
             res.update({
-                "analytic_disctribution": {self.picking_id.account_analytic_id.id: 100},
+                "analytic_disctribution": {self.picking_id.analytic_account_id.id: 100},
             })
         if self.analytic_distribution and not self.picking_id.analytic_account_id:
             res.update({

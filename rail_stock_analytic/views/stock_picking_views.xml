@@ -7,7 +7,7 @@
         <field name="arch" type="xml">
             <xpath expr="//field[@name='picking_type_id']" position="after">
                 <field name="account_id" groups="account.group_account_readonly"/>
-                <field name="account_analytic_id" groups="analytic.group_analytic_accounting"/>
+                <field name="analytic_account_id" groups="analytic.group_analytic_accounting"/>
             </xpath>
             <xpath
                 expr="//field[@name='move_ids_without_package']/tree/field[@name='product_id']"
