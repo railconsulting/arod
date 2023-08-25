@@ -47,10 +47,10 @@ class StockMove(models.Model):
         moves through procurement.
         """
         res = super()._prepare_procurement_values()
-        if self.picking_id.account_id:
+        """ if self.picking_id.account_id:
             res.update({
                 "account_id": self.picking_id.account_id.id
-            })
+            }) """
         if self.picking_id.analytic_account_id and not self.analytic_ids:
             res.update({
                 "analytic_disctribution": {self.picking_id.analytic_account_id.id: 100},
@@ -112,10 +112,10 @@ class StockMoveLine(models.Model):
         new move created here with the analytic account if filled in.
         """
         res = super()._prepare_stock_move_vals()
-        if self.picking_id.account_id:
+        """ if self.picking_id.account_id:
             res.update({
                 "account_id": self.picking_id.account_id.id
-            })
+            }) """
         if self.picking_id.analytic_account_id and not self.analytic_ids:
             res.update({
                 "analytic_disctribution": {self.picking_id.analytic_account_id.id: 100},
