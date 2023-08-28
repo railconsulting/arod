@@ -29,7 +29,7 @@ class ClearDataModel(models.Model):
     internal_model_list=fields.Text(string='Always clear',description="Model in this list do not need installed. style like this:[string,string,...]")
     model_clear_ids=fields.Many2many("ir.model",'clear_data_ir_model_rel','group_id','model_id',domain=[('model','not in',['clear.data.model'])])
     auto_clear_ir_sequence=fields.Boolean(string="Auto clear ir sequence",default=True)
-    company_ids = fields.Many2many('res.company', required=True)
+    company_ids = fields.Many2many('res.company')
 
     def action_do_clear(self):
         self.ensure_one()
@@ -77,7 +77,7 @@ class ClearDataModel(models.Model):
         if model_obj==None or not odoo.tools.table_exists(self._cr, model_obj._table):
             return
         # Check if the 'company_id' field exists in the model
-        if 'company_id' in model_obj._fields and self.company_ids:
+        if 'company_id' in model_obj._fields and not model_obj._fields['company_id'].readonly and self.company_ids:
             companies = ','.join([str(x) for x in self.company_ids.ids])
 
             # Construct the SQL query with a WHERE condition

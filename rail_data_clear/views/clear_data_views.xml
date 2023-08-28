@@ -19,7 +19,7 @@
       <field name="arch" type="xml">
         <form string="clear model group form">
           <header>
-          		<button name="action_do_clear" string="do clear" type="object"  class="btn-primary"></button>
+          		<button name="action_do_clear" string="do clear" type="object"  class="btn-primary" confirm="Estas seguro de continuar?"></button>
           </header>
           <sheet>
          		<group>
