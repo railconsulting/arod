@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+	<data>
+		<record id="view_users_form_mail" model="ir.ui.view">
+			<field name="name">res.users.form.mail</field>
+            <field name="model">res.users</field>
+            <field name="inherit_id" ref="base.view_users_form"/>
+            <field name="arch" type="xml">
+        		<xpath expr="//page[@name='preferences']" position="after">
+                    <page name="stock_preferences" string="Preferencias Stock">
+                        <group>
+                            <group string="Restriccion de almacenes">
+                                <field name="available_warehouse_ids" widget="many2many_tags" />
+                            </group>
+                            <group string="Restriccion de ubicaciones">
+                                <field name="available_location_ids" widget="many2many_tags" />
+                            </group>
+                            <group string="Restriccion tipos de operacion">
+                                <field name="picking_type_ids" widget="many2many_tags" />
+                            </group>
+                        </group>
+                    </page>
+        		</xpath>
+			</field>
+		</record>
+	</data>
+</odoo>
