@@ -1,0 +1,79 @@
+<odoo>
+    <record id="custom_stock_landed_costs_form" model="ir.ui.view">
+        <field name="inherit_id" ref="stock_landed_costs.view_stock_landed_cost_form"/>
+        <field name="model">stock.landed.cost</field>
+        <field name="arch" type="xml">
+            <xpath expr="//header" position="inside">
+                <button name="create_internal_transfer" string="Crear traslado"  class="oe_highlight" type="object" attrs="{'invisible':[('picking_id','!=',False)]}"/>
+            </xpath>
+            <field name="picking_ids" position="after">
+                <field name="dest_location_id" string="Ubicacion destino" />
+                <field name="picking_id" readonly="1" force_save="1" string="Traslado"/>
+                <field name="exclude_tax_reports"/>
+                <field name="type" attrs="{'invisible': [('exclude_tax_reports','=',True)], 'required': [('exclude_tax_reports','=',False)]}"/>
+                <field name="no_doc" attrs="{'invisible': [('exclude_tax_reports','=',True)], 'required': [('exclude_tax_reports','=',False)]}"/>
+                <label for="account_journal_id" string="Journal"/>
+                <field name="account_journal_id" nolabel="1"/>
+                <field name="company_id" groups="base.group_multi_company"/>
+                <field name="account_move_id" attrs="{'invisible': [('account_move_id', '=', False)]}"/>
+            </field>
+
+            <xpath expr="//sheet/group[1]/group[2]" position="after">
+                <group>
+                    <field name="sat_value"/>
+                    <label for="currency_sat_id" string="Moneda"/>
+                    <div class="d-flex">
+                        <field name="currency_sat_id" required="1" options="{'no_create':True,'no_quick_create':True,'no_create_edit':True,'no_open': True}"/>
+                        <span class="o_form_label mx-3 oe_edit_only"> Tipo de cambio </span>
+                        <field name="currency_rate"/>
+                    </div>
+                    <field name="insurance"/>
+                    <field name="shipment"/>
+                    <field name="expenses_dai"/>
+                    <field name="dai" attrs="{'invisible': [('exclude_tax_reports','=',True)], 'required': [('exclude_tax_reports','=',False)]}"/>
+                    <field name="iva" attrs="{'invisible': [('exclude_tax_reports','=',True)], 'required': [('exclude_tax_reports','=',False)]}"/>
+                    <field name="amount_sat_total" attrs="{'invisible': [('exclude_tax_reports','=',True)], 'required': [('exclude_tax_reports','=',False)]}"/>
+                    <field name="amount_sat_total_currency" attrs="{'invisible': [('exclude_tax_reports','=',True)], 'required': [('exclude_tax_reports','=',False)]}"/>
+                </group>
+            </xpath>
+            <xpath expr="//button[@name='compute_landed_cost']" position="replace">
+                <div colspan="2" class="oe_right" style="display: flex; flex-flow: row;">
+                    <button colspan="2" name="xls_export_dwn" string="Pivote" type="object" class="btn-secondary"/>
+                    <button colspan="2" name="compute_landed_cost" string="Calcular" type="object" class="btn-secondary" states='draft'/>
+                </div>
+            </xpath>
+            <xpath expr="//page[@name='additional_costs']/field[@name='cost_lines']/tree/field[@name='product_id']" position="after">
+                <field name="to_dai"/>
+            </xpath>
+            <xpath expr="//page[@name='additional_costs']/field[@name='cost_lines']/tree/field[@name='split_method']" position="after">
+                <field name="bill_id" string="Factura" domain="[('move_type','=','in_invoice')]" context="{'default_move_type': 'in_invoice'}"/>
+            </xpath>
+            <xpath expr="//sheet/group[1]/group[2]" position="attributes">
+                <attribute name="invisible">1</attribute>
+            </xpath>
+            <xpath expr="//notebook/page[@name='additional_costs']" position="after">
+                <page string="DAI">
+                    <group>
+                        <field name="dai_lines" nolabel="1" >
+                            <tree nolabel="1" create="0">
+                                <field name="landed_cost_id" invisible="1"/>
+                                <field name="product_id" string="Producto" readonly="1"/>
+                                <field name="price_unit" string="Costo U." readonly="1"/>
+                                <field name="qty" string="Cnt" readonly="1"/>
+                                <field name="subtotal_amount" string="Subtotal" sum="total_subtotal"/>
+                                <field name="expenses" readonly="1" force_save="1" sum="total_expenses"/>
+                                <field name="insurance" readonly="1" force_save="1" sum="total_insurance"/>
+                                <!--field name="tax_ids" widget="many2many_tags" string="Impuestos" readonly="1"/-->
+                                <field name="dai_percentage" readonly="1"/>
+                                <field name="dai_amount" string="DAI" sum="total_dai"/>
+                            </tree>
+                        </field>
+                        <group class="oe_subtotal_footer oe_right">
+                            <button colspan="2" name="button_get_dai_amount_lines" string="Calcular" type="object" class="btn-secondary" states='draft' style="width:100px"/>
+                        </group>
+                    </group>
+                </page>
+            </xpath>
+        </field>
+    </record>
+</odoo>

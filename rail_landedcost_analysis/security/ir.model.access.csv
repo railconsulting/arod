@@ -1,0 +1,2 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_stock_dai_amount,access_stock_dai_amount,model_stock_landed_cost_dai,,1,1,1,1
