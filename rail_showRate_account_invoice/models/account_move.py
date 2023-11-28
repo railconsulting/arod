@@ -39,7 +39,7 @@ class AccountMove(models.Model):
         for item in self:
             if item.currency_id != item.company_id.currency_id:
                 if item.invoice_date == False:    
-                    item.invoice_date = date.today().strftime("%d/%m/%Y")
+                    item.invoice_date = date.today()
                 
                 rates = self.get_rates(item.currency_id, item.company_id, item.invoice_date)
                 currencyRate = rates.get(item.currency_id.id)
