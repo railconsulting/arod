@@ -2,6 +2,7 @@
 
 from odoo import fields, models, api, _
 from odoo.exceptions import UserError, ValidationError
+from datetime import date
 
 class AccountMove(models.Model):
     _inherit = 'account.move'
@@ -37,6 +38,9 @@ class AccountMove(models.Model):
         currencyRate=0
         for item in self:
             if item.currency_id != item.company_id.currency_id:
+                if item.invoice_date == False:    
+                    item.invoice_date = date.today().strftime("%d/%m/%Y")
+                
                 rates = self.get_rates(item.currency_id, item.company_id, item.invoice_date)
                 currencyRate = rates.get(item.currency_id.id)
                 #raise ValidationError('currencyRate- '+str(currencyRate)+'-company_id-'+str(item.company_id.id)+'-date-'+str(item.date)+'-currency_id-'+str(item.currency_id.id))
