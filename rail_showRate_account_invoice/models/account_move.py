@@ -3,6 +3,7 @@
 from odoo import fields, models, api, _
 from odoo.exceptions import UserError, ValidationError
 from datetime import date, datetime
+from zoneinfo import ZoneInfo
 
 class AccountMove(models.Model):
     _inherit = 'account.move'
@@ -39,7 +40,7 @@ class AccountMove(models.Model):
         for item in self:
             if item.currency_id != item.company_id.currency_id:
                 if item.invoice_date == False:    
-                    item.invoice_date = datetime.now()
+                    item.invoice_date = datetime.now(tz=ZoneInfo("America/Mexico_City"))
                 
                 rates = self.get_rates(item.currency_id, item.company_id, item.invoice_date)
                 currencyRate = rates.get(item.currency_id.id)
