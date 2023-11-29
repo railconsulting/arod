@@ -20,7 +20,7 @@
                     <group string="XML Cargado"
                         attrs="{'invisible': [('move_type', 'in', ('out_invoice','out_refund'))]}">
                         <field name="xml_filename" invisible="1"/>
-                        <field name="xml_file" filename="xml_filename" widget="binary"/>
+                        <field name="xml_file" filename="xml_filename" widget="binary" attrs="{'readonly':[('state','!=','draft')]}"/>
                     </group>
                 </group>
             </field>
