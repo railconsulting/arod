@@ -1,0 +1,4 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_wizard_work_entry,payroll_wizard_work_entry.wizard_work_entry,model_work_entry_wizard,base.group_user,1,1,1,1
+access_work_entry_wizard_payslips,payroll_wizard_work_entry.work_entry_wizard_payslips,model_work_entry_wizard_payslips,base.group_user,1,1,1,1
+access_input_entry_wizard_payslips,payroll_wizard_input_entry.input_entry_wizard_payslips,model_input_entry_wizard_payslips,base.group_user,1,1,1,1
