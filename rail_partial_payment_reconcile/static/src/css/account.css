@@ -1,0 +1,6 @@
+.oe_invoice_outstanding_credits_debits {
+    clear: both;
+    float: right;
+    min-width: 360px;
+    padding-top: 20px;
+}

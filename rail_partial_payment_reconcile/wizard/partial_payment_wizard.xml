@@ -1,0 +1,33 @@
+<?xml version="1.0"?>
+<odoo>
+    <data>
+	   <record id="partial_payment_wizard_view_form" model="ir.ui.view">
+            <field name="name">partial.payment.wizard.view.form</field>
+            <field name="model">partial.payment.wizard</field>
+            <field name="arch" type="xml">
+                <form string="Aplicacion pago parcial">
+                    <group>
+                        <group>
+                            <field name="partial_amount"/>
+                        </group>
+                        <group>
+                            <field name="outstanding_amount" readonly="1"/>
+                        </group>
+                    </group>
+                    <footer>
+                        <button string="Reconciliar" name="action_partial_reconcile" type="object" class="oe_highlight"/>
+                        or
+                        <button string="Cancelar" class="oe_link" special="cancel" />
+                    </footer>
+                </form>
+            </field>
+        </record>
+
+        <record id="action_partial_payment" model="ir.actions.act_window">
+            <field name="name">Aplicacion pago parcial</field>
+            <field name="res_model">partial.payment.wizard</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+        </record>
+    </data>
+</odoo>
