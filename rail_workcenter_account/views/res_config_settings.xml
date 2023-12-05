@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="mrp_workcenter_account" model="ir.ui.view">
+        <field name="name">mrp.workcenter.account</field>
+        <field name="model">res.config.settings</field>
+        <field name="inherit_id" ref="mrp_workorder.res_config_settings_view_form"/>
+        <field name="arch" type="xml">
+            <div id="quality_control_mrp" position="before">
+                <div class="col-lg-6 col-12 o_setting_box" id="mrp_wo_workcenter_account_entry">
+                    <div class="content-group">
+                        <div class="mt16">
+                            <label for="wc_journal_id" class="o_light_label" string="Diario contable para entradas de centros de trabajo"/>
+                            <field name="wc_journal_id" class="oe_inline"/>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </field>
+    </record>
+</odoo>
