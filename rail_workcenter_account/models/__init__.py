@@ -2,5 +2,6 @@
 
 from . import res_company
 from . import res_config_settings
+from . import employee
 from . import work_center
 from . import mrp

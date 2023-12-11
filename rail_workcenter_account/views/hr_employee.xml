@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="hr_employee_mrp_accouninherit" model="ir.ui.view">
+        <field name="name">hr.employee.mrp.account</field>
+        <field name="model">hr.employee</field>
+        <field name="inherit_id" ref="hr.view_employee_form"/>
+        <field name="arch" type="xml">
+            <group name="identification_group" position="after">
+                <group string="Contabilidad MRP" name="payroll_group">
+                    <field name="inventory_account_id" groups="account.group_account_manager"/>
+                    <field name="expense_account_id" groups="account.group_account_manager"/>
+                </group>
+            </group>
+        </field>
+    </record>
+</odoo>

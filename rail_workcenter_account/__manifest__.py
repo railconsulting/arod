@@ -20,11 +20,11 @@
     'version': '0.1',
 
     # any module necessary for this one to work correctly
-    'depends': ['mrp'],
+    'depends': ['mrp','hr'],
 
     # always loaded
     'data': [
-        # 'security/ir.model.access.csv',
+        'views/hr_employee.xml',
         'views/res_config_settings.xml',
         'views/work_center.xml',
     ],
