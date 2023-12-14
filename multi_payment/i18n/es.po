@@ -1,0 +1,196 @@
+# Translation of Odoo Server.
+# This file contains the translation of the following modules:
+# 	* multi_payment
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: Odoo Server 16.0+e-20230720\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2023-12-14 17:16+0000\n"
+"PO-Revision-Date: 2023-12-14 11:20-0600\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: es\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+"X-Generator: Poedit 3.4.1\n"
+
+#. module: multi_payment
+#. odoo-python
+#: code:addons/multi_payment/models/account_move.py:0
+#, python-format
+msgid ""
+"Account %s does not allow reconciliation. First change the configuration of "
+"this account to allow it."
+msgstr ""
+"La cuenta %s no permite reconciliacion. Para corregir configura la cuenta "
+"en el plan contable para permitir reconciliaciones."
+
+#. module: multi_payment
+#: model:ir.model.fields,field_description:multi_payment.field_account_payment__payment_amount_due
+#: model:ir.model.fields,field_description:multi_payment.field_account_payment_invoice__residual
+msgid "Amount Due"
+msgstr "Saldo"
+
+#. module: multi_payment
+#: model:ir.model.fields,field_description:multi_payment.field_account_payment__applied_amount
+msgid "Applied Amount"
+msgstr "Monto aplicado"
+
+#. module: multi_payment
+#: model:ir.model.fields,field_description:multi_payment.field_account_payment__batch_reconcile
+msgid "Batch reconcile"
+msgstr "Aplicar en lote"
+
+#. module: multi_payment
+#: model:ir.model.fields,field_description:multi_payment.field_account_payment_invoice__create_uid
+msgid "Created by"
+msgstr "Creado por"
+
+#. module: multi_payment
+#: model:ir.model.fields,field_description:multi_payment.field_account_payment_invoice__create_date
+msgid "Created on"
+msgstr "Creado el"
+
+#. module: multi_payment
+#: model:ir.model.fields,field_description:multi_payment.field_account_payment_invoice__currency_id
+msgid "Currency"
+msgstr "Moneda"
+
+#. module: multi_payment
+#: model:ir.model.fields,field_description:multi_payment.field_account_payment__payment_invoice_ids
+msgid "Customer Invoices"
+msgstr "Facturas de Cliente"
+
+#. module: multi_payment
+#: model:ir.model.fields,field_description:multi_payment.field_account_payment_invoice__display_name
+msgid "Display Name"
+msgstr "Nombre mostrado"
+
+#. module: multi_payment
+#: model:ir.model.fields,field_description:multi_payment.field_account_payment_invoice__date_due
+msgid "Due Date"
+msgstr "Fecha vencimiento"
+
+#. module: multi_payment
+#. odoo-python
+#: code:addons/multi_payment/models/account_payment.py:0
+#, python-format
+msgid "Enter the Due amount correctly"
+msgstr "Introduzca correctamente el importe adeudado"
+
+#. module: multi_payment
+#. odoo-python
+#: code:addons/multi_payment/models/account_move.py:0
+#, python-format
+msgid "Entries are not from the same account: %s != %s"
+msgstr "Los apuntes contables no pertenecen a la misma cuenta: %s != %s"
+
+#. module: multi_payment
+#. odoo-python
+#: code:addons/multi_payment/models/account_move.py:0
+#, python-format
+msgid "Entries doesn't belong to the same company: %s != %s"
+msgstr "Los apuntos contables no pertenecen a la misma empresa: %s != %s"
+
+#. module: multi_payment
+#: model:ir.model.fields,field_description:multi_payment.field_account_payment_invoice__id
+msgid "ID"
+msgstr "ID"
+
+#. module: multi_payment
+#: model:ir.model.fields,field_description:multi_payment.field_account_move_line__invoice_id
+#: model:ir.model.fields,field_description:multi_payment.field_account_payment_invoice__invoice_id
+msgid "Invoice"
+msgstr "Factura"
+
+#. module: multi_payment
+#: model:ir.model.fields,field_description:multi_payment.field_account_payment_invoice__date_invoice
+msgid "Invoice/Bill Date"
+msgstr "Fecha factura"
+
+#. module: multi_payment
+#: model_terms:ir.ui.view,arch_db:multi_payment.account_payment_form_inherited
+msgid "Invoices"
+msgstr "Facturas"
+
+#. module: multi_payment
+#: model:ir.model,name:multi_payment.model_account_move_line
+msgid "Journal Item"
+msgstr "Apunte contable"
+
+#. module: multi_payment
+#: model:ir.model.fields,field_description:multi_payment.field_account_payment_invoice____last_update
+msgid "Last Modified on"
+msgstr "Última modificación el"
+
+#. module: multi_payment
+#: model:ir.model.fields,field_description:multi_payment.field_account_payment_invoice__write_uid
+msgid "Last Updated by"
+msgstr "Ultima actualizacion por"
+
+#. module: multi_payment
+#: model:ir.model.fields,field_description:multi_payment.field_account_payment_invoice__write_date
+msgid "Last Updated on"
+msgstr "Ultima actualizacion el"
+
+#. module: multi_payment
+#: model:ir.model.fields,field_description:multi_payment.field_account_payment_invoice__origin
+msgid "Origin"
+msgstr "Origen"
+
+#. module: multi_payment
+#: model:ir.model.fields,field_description:multi_payment.field_account_payment_invoice__payment_id
+msgid "Payment"
+msgstr "Pago"
+
+#. module: multi_payment
+#: model:ir.model,name:multi_payment.model_account_payment
+msgid "Payments"
+msgstr "Pagos"
+
+#. module: multi_payment
+#: model:ir.model.fields,field_description:multi_payment.field_account_payment_invoice__reconcile_amount
+msgid "Reconcile Amount"
+msgstr "Monto conciliado"
+
+#. module: multi_payment
+#: model_terms:ir.ui.view,arch_db:multi_payment.account_payment_form_inherited
+msgid "Refresh"
+msgstr "Refrescar"
+
+#. module: multi_payment
+#: model:ir.model.fields,field_description:multi_payment.field_account_payment_invoice__payment_state
+msgid "Status"
+msgstr "Estado"
+
+#. module: multi_payment
+#: model:ir.model.fields,help:multi_payment.field_account_payment_invoice__origin
+msgid "The document(s) that generated the invoice."
+msgstr "Documento(s) que generan factura"
+
+#. module: multi_payment
+#: model:ir.model.fields,field_description:multi_payment.field_account_payment_invoice__amount_total
+msgid "Total"
+msgstr "Total"
+
+#. module: multi_payment
+#. odoo-python
+#: code:addons/multi_payment/models/account_move.py:0
+#, python-format
+msgid "You are trying to reconcile some entries that are already reconciled."
+msgstr "Estas tratando de conciliar registro que ya estan conciliados"
+
+#. module: multi_payment
+#. odoo-python
+#: code:addons/multi_payment/models/account_move.py:0
+#, python-format
+msgid "You can only reconcile posted entries."
+msgstr "Solo puedes conciliar asientos publicados"
+
+#. module: multi_payment
+#: model:ir.model,name:multi_payment.model_account_payment_invoice
+msgid "account.payment.invoice"
+msgstr "account.payment.invoice"
