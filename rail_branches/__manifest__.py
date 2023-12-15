@@ -17,6 +17,7 @@
         'views/sale_order.xml',
         'views/stock_picking.xml',
         'views/stock_move.xml',
+        'views/account_journal.xml',
         'views/account_invoice.xml',
         'views/purchase_order.xml',
         'views/stock_warehouse.xml',
