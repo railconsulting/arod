@@ -5,7 +5,7 @@ from odoo.tools.float_utils import float_compare
 
 
 class AccountJournal(models.Model):
-    _inherit = 'account.move'
+    _inherit = 'account.journal'
 
     @api.model
     def default_get(self, default_fields):
