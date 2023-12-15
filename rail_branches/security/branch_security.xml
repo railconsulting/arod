@@ -234,6 +234,20 @@
     </record>
     
     <!--Contabilidad-->
+    <record id="account_journal_branch_manager_rule" model="ir.rule">
+        <field name="name">Sucursales: administrador diarios contables</field>
+        <field name="model_id" ref="account.model_account_journal"/>
+        <field name="global" eval="True"/>
+        <field name="domain_force">['|',('branch_id','=',False),('branch_id','in',[branch.id for branch in user.branch_ids])]</field>
+        <field name="groups" eval="[(4, ref('rail_branches.group_branch_user_manager'))]"/>
+    </record>
+    <record id="account_journal_branch_rule" model="ir.rule">
+        <field name="name">Sucursales: usuario diarios</field>
+        <field name="model_id" ref="account.model_account_journal"/>
+        <field name="global" eval="True"/>
+        <field name="domain_force">['|',('branch_id','=',False),('branch_id','=',user.branch_id.id)]</field>
+        <field name="groups" eval="[(4, ref('rail_branches.group_branch_user'))]"/>
+    </record>
     <record id="account_move_branch_manager_rule" model="ir.rule">
         <field name="name">Sucursales: administrador asientos contables</field>
         <field name="model_id" ref="account.model_account_move"/>
