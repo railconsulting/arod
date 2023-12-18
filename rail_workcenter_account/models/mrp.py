@@ -29,14 +29,14 @@ class MrpProduction(models.Model):
                                         + wo.workcenter_id.name)
                     if times:
                         for t in times:
-                            if t.user_id:
-                                user = t.user_id.employee_id
-                                inv_account = t.user_id.employee_id.inventory_account_id.id
-                                exp_account = t.user_id.employee_id.expense_account_id.id
-                            else:
+                            if t.employee_id:
                                 user = t.employee_id
                                 inv_account = t.employee_id.inventory_account_id.id
                                 exp_account = t.employee_id.employee_id.expense_account_id.id
+                            else:
+                                user = t.user_id.employee_id
+                                inv_account = t.user_id.employee_id.inventory_account_id.id
+                                exp_account = t.user_id.employee_id.expense_account_id.id
 
                             if not inv_account or not exp_account:
                                 raise ValidationError("No se encuentra un cuenta contable valida para: "
