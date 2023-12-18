@@ -32,7 +32,7 @@ class MrpProduction(models.Model):
                             if t.employee_id:
                                 user = t.employee_id
                                 inv_account = t.employee_id.inventory_account_id.id
-                                exp_account = t.employee_id.employee_id.expense_account_id.id
+                                exp_account = t.employee_id.expense_account_id.id
                             else:
                                 user = t.user_id.employee_id
                                 inv_account = t.user_id.employee_id.inventory_account_id.id
