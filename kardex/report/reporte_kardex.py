@@ -46,7 +46,6 @@ class ReporteKardex(models.AbstractModel):
         #raise ValidationError(str(datos['ubicacion_ids']))
         lineas = []
         for location in datos['ubicacion_ids']:
-            #_logger.critical("UBICACION: " + str(location))
             dict = {'product_id': producto.id, 
                     'location_id': location.id, 
                     'date_from': datos['date_from']
@@ -63,7 +62,6 @@ class ReporteKardex(models.AbstractModel):
                     ('state','=','done'), 
                     '|', ('location_id','=', location.id), ('location_dest_id','=', location.id)
                 ], order = 'date')
-            #_logger.critical("MOVE: " + str(moves))
             if moves:
                 for m in moves:
                     detalle = {
