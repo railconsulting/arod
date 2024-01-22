@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="product_prefix_action" model="ir.actions.act_window">
+        <field name="name">Prefijos de producto</field>
+        <field name="res_model">product.code.prefix</field>
+        <field name="view_mode">tree,form</field>
+        <field name="target">current</field>
+    </record>
+    <menuitem
+        id="product_prefix_menu"
+        parent="stock.menu_product_in_config_stock"
+        sequence="1"
+        action="product_prefix_action"
+        groups="stock.group_stock_manager"/>
+</odoo>
