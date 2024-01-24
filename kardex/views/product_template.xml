@@ -10,13 +10,13 @@
                ref="product.product_template_only_form_view"/>
         <field name="arch" type="xml">
             <xpath expr="//label[@for='standard_price']" position="attributes">
-                <attribute name="groups">hide_cost_price.groups_view_cost_price</attribute>
+                <attribute name="groups">kardex.groups_view_cost_price</attribute>
             </xpath>
             <xpath expr="//div[@name='standard_price_uom']" position="attributes">
-                <attribute name="groups">hide_cost_price.groups_view_cost_price</attribute>
+                <attribute name="groups">kardex.groups_view_cost_price</attribute>
             </xpath>
             <xpath expr="//field[@name='standard_price']" position="attributes">
-                <attribute name="groups">hide_cost_price.groups_view_cost_price</attribute>
+                <attribute name="groups">kardex.groups_view_cost_price</attribute>
             </xpath>
         </field>
     </record>
@@ -30,7 +30,7 @@
         <field name="arch" type="xml">
             <xpath expr="//field[@name='standard_price']"
                    position="attributes">
-                <attribute name="groups">hide_cost_price.groups_iew_cost_price
+                <attribute name="groups">kardex.groups_iew_cost_price
                 </attribute>
             </xpath>
         </field>
