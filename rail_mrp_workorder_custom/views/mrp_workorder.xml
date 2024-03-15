@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<odoo>
+    <record id="rail_end_date_filter" model="ir.ui.view">
+        <field name="name">rail.costing.preview.tab</field>
+        <field name="model">mrp.production</field>
+        <field name="inherit_id" ref="mrp.mrp_production_workorder_tree_view"/>
+        <field name="arch" type="xml">
+            <xpath expr="//field[@name='date_finished']" position="replace">
+                <field name="date_finished" optional="hide" readonly="1" 
+                    filter_domain="[('date_finished', '&gt;=', date_from), ('date_finished', '&lt;=', date_to)]" 
+                    widget="date_range"/>
+            </xpath>
+        </field>
+    </record>
+</odoo>

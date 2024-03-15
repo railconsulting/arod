@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+
+
+    <template id="search_template_extra_options"
+        inherit_id="account_reports.search_template_extra_options">
+        <xpath expr="//div" position="inside">
+            <a role="menuitem" class="dropdown-item js_account_report_bool_filter"
+                t-if="report.filter_amount_currency" title="Show amount in currency"
+                data-filter="filter_amount_currency" groups="account.group_account_user">Show amount
+                in currency</a>
+        </xpath>
+    </template>
+
+    <template id="line_template" inherit_id="account_reports.line_template">
+        <td t-if="options.get('show_growth_comparison')" position="before">
+            <td t-if="options.get('filter_amount_currency') and (line.get('cr_amount_currency') or 'total' in line.get('id',''))">
+                <div class="o_account_report_column_value">
+                    <table style="width:100%;">
+                        <tbody>
+                            <tr>
+                                <td
+                                    style="padding-right:0; padding-top:0; padding-bottom:0; text-align:right;"
+                                    class="number o_account_report_line">
+                                    <span class="o_account_report_column_value"
+                                        t-out="line.get('cr_amount_currency')" />
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </td>
+        </td>
+    </template>
+</odoo>
