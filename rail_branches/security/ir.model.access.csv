@@ -1,0 +1,10 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+
+access_res_branch_user,res.rail_branches.user,model_res_branch,rail_branches.group_branch_user,1,1,0,0
+access_res_branch_user_all,res.rail_branches.user.all,model_res_branch,,1,1,0,0
+access_res_branch_manager,res.rail_branches.manager,model_res_branch,rail_branches.group_branch_user_manager,1,1,1,1
+action_res_branch_location_rule,res.rail_branches.user.location,stock.model_stock_location,rail_branches.group_branch_user,1,1,1,1
+action_res_branch_location_rule_manager,res.rail_branches.user.location,stock.model_stock_location,rail_branches.group_branch_user_manager,1,1,1,1
+access_stock_warehouse_branch_user,stock.warehouse.rail_branches.user,stock.model_stock_warehouse,rail_branches.group_branch_user,1,1,0,0
+access_stock_warehouse_branch_manager,stock.warehouse.rail_branches.manager,stock.model_stock_warehouse,rail_branches.group_branch_user_manager,1,1,1,1
+access_stock_picking_branc_user,stock.picking.rail_branches.user,stock.model_stock_picking,rail_branches.group_branch_user,1,1,1,1
