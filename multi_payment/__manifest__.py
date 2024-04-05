@@ -1,11 +1,11 @@
 {
     "name": "Multi Payment For Customer Invoices and Vendor Bills",
-    "version": "15.0",
+    "version": "16.0.0.1",
     "description": """
         Using this module you can pay multiple invoice payment in one click.
     """,
-    'author': 'PPTS [India] Pvt.Ltd.',
-    'website': "http://www.pptssolutions.com",
+    'author': 'Kevin Lopez',
+    'website': "http://www.odugt.com",
     'category': "Accounting",
     'summary': "Using this module you can pay multiple invoice payment in one click. Multiple invoice payment in one "
                "click for customer",
@@ -19,7 +19,6 @@
     'qweb': [],
     'css': [],
     'js': [],
-    'images': ['static/description/banner.jpg'],
     'demo': [],
     'installable': True,
     'auto_install': False,
