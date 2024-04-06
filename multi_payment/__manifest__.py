@@ -4,7 +4,7 @@
     "description": """
         Using this module you can pay multiple invoice payment in one click.
     """,
-    'author': 'Kevin Lopez',
+    'author': 'Kevin Lopez for Rail',
     'website': "http://www.odugt.com",
     'category': "Accounting",
     'summary': "Using this module you can pay multiple invoice payment in one click. Multiple invoice payment in one "
