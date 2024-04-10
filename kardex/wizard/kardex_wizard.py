@@ -16,6 +16,13 @@ class AsistenteKardex(models.TransientModel):
     warehouse_ids = fields.Many2many('stock.warehouse', string="Almacen")
     #ubicacion_id = fields.Many2one("stock.location", string="Ubicacion", required=True)
     location_ids = fields.Many2many("stock.location", string="Ubicaciones")
+    all_location_ids = fields.Many2many(
+        comodel_name='stock.location',
+        relation='all_location_rel',
+        column1="wizard_id",
+        column2='all_location_id',
+        string="Ubicaciones relacionadas"
+        )
     product_ids = fields.Many2many("product.product", string="Productos", domain=[('detailed_type','in',['consu','product'])])
     date_from = fields.Datetime(string="Fecha Inicial" )
     date_to = fields.Datetime(string="Fecha Final")
@@ -30,14 +37,6 @@ class AsistenteKardex(models.TransientModel):
     def check_date_range(self):
         if self.end_date < self.start_date:
             raise ValidationError(_('Ingresa un rango de fechas apropiado'))
-
-    def print_report(self):
-        data = {
-             'ids': [],
-             'model': 'asistente.kardex',
-             'form': self.read()[0]
-        }
-        return self.env.ref('kardex.action_reporte_kardex').report_action(self, data=data)
     
     def get_location(self):
         stock_ids = []
@@ -55,8 +54,12 @@ class AsistenteKardex(models.TransientModel):
                     domain.append(('location_id','=', location.id))
 
         final_stock_ids = location_obj.search(domain)
-        _logger.critical(str(final_stock_ids))
-        return final_stock_ids
+        location_data = [fields.Command.clear()]
+        for fsi in final_stock_ids:
+            location_data += [fields.Command.link(fsi.id)]
+        #raise ValidationError(str(location_data))
+        self.all_location_ids = location_data
+        #return final_stock_ids
 
     def _xlsx_kardex(self):
         company = self.company_id
@@ -120,7 +123,8 @@ class AsistenteKardex(models.TransientModel):
         data['date_from'] = self.date_from
         data['date_to'] = self.date_to
         locations = self.get_location()
-        data['location_ids'] = locations
+        data['all_location_ids'] = self.all_location_ids
+        data['report_type'] = 'xlsx'
         
         sheet.write(0, 0, "KARDEX", main_header)
         sheet.write(0, 1, company.display_name, main_header)
@@ -132,11 +136,13 @@ class AsistenteKardex(models.TransientModel):
             warehouse_list.append(w.display_name)
         wh = ', '.join(warehouse_list)
         str_condition += wh
-        str_condition += "Ubicaciones: "
+        str_condition += " / Ubicaciones: "
         location_list = []
         for l in self.location_ids:
             location_list.append(l.display_name)
         loc = ','.join(location_list)
+        if not loc:
+            loc = " Todas las ubicaciones "
         str_condition += loc
 
         str_condition += " |    Desde: " + datetime.datetime.strftime(self.date_from,'%d/%m/%Y %H:%M:%S')
@@ -153,7 +159,7 @@ class AsistenteKardex(models.TransientModel):
             result = self.env['report.kardex.reporte_kardex'].get_lines(data, p.id)
 
             sheet.write(row, 0, 'PRODUCTO:', calibri_12_blue)
-            sheet.merge_range(row, 1, row, 12, p.display_name, calibri_12_blue)
+            sheet.merge_range(row, 1, row, 13, p.display_name, calibri_12_blue)
             sheet.write(row, 2, p.barcode if p.barcode else '', calibri_12_bold)
             row += 1
             sheet.write(row, 0, 'Inicial:', calibri_12)
@@ -176,9 +182,10 @@ class AsistenteKardex(models.TransientModel):
             sheet.write(row, 7, 'Ubicacion', table_header)
             sheet.write(row, 8, 'Entradas', table_header)
             sheet.write(row, 9, 'Salidas', table_header)
-            sheet.write(row, 10, 'Final', table_header)
-            sheet.write(row, 11, 'Costo', table_header)
-            sheet.write(row, 12, 'Total', table_header)
+            sheet.write(row, 10, 'Traslados', table_header)
+            sheet.write(row, 11, 'Final', table_header)
+            sheet.write(row, 12, 'Costo', table_header)
+            sheet.write(row, 13, 'Total', table_header)
             row += 1
             for l in result['lines']:
                 sheet.write(row, 0, datetime.datetime.strftime(l['date'],'%d/%m/%Y'), calibri_10)
@@ -191,9 +198,10 @@ class AsistenteKardex(models.TransientModel):
                 sheet.write(row, 7, l['location'], calibri_10)
                 sheet.write(row, 8, l['in'], calibri_10)
                 sheet.write(row, 9, abs(l['out']), calibri_10)
-                sheet.write(row, 10, l['balance'], calibri_10)
-                sheet.write(row, 11, l['cost'], calibri_10)
-                sheet.write(row, 12, l['balance'] * l['cost'], calibri_10)
+                sheet.write(row, 10, l['transfer'], calibri_10)
+                sheet.write(row, 11, l['balance'], calibri_10)
+                sheet.write(row, 12, l['cost'], calibri_10)
+                sheet.write(row, 13, l['balance'] * l['cost'], calibri_10)
                 row += 1
             row += 2
 
@@ -224,3 +232,12 @@ class AsistenteKardex(models.TransientModel):
             'target': 'new',
             'res_id': self.id,
         }
+    
+    def print_report(self):
+        self.get_location()
+        data = {
+             'ids': [],
+             'model': 'asistente.kardex',
+             'form': self.read()[0]
+        }
+        return self.env.ref('kardex.action_reporte_kardex').report_action(self, data=data)

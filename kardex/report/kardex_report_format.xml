@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <!-- KARDEX -->
+        <record id="kardex_paperformat" model="report.paperformat">
+            <field name="name">kardex</field>
+            <field name="default" eval="True"/>
+            <field name="format">Letter</field>
+            <field name="orientation">Landscape</field>
+            <field name="margin_top">45</field>
+            <field name="margin_bottom">20</field>
+            <field name="margin_left">2</field>
+            <field name="margin_right">2</field>
+            <field name="header_line" eval="False"/>
+            <field name="header_spacing">30</field>
+            <field name="dpi">90</field>
+        </record>
+        <record id="action_reporte_kardex" model="ir.actions.report">
+            <field name="name">kardex.reporte_kardex</field>
+            <field name="model">asistente.kardex</field>
+            <field name="binding_model_id" ref="model_asistente_kardex"/>
+            <field name="report_type">qweb-pdf</field>
+            <field name="report_name">kardex.reporte_kardex</field>
+            <field name="report_file">kardex.reporte_kardex</field>
+            <field name="paperformat_id" ref="kardex.kardex_paperformat"/>
+        </record>
+    </data>
+</odoo>

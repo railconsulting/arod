@@ -1,0 +1,4 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_internal_reference_wizard,access_internal_reference_wizard,model_internal_reference_wizard,base.group_user,1,1,1,1
+access_product_code_prefix,access.product.code.prefix,model_product_code_prefix,base.group_user,1,1,1,1
+

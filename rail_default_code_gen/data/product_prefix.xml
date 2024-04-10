@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data noupdate="1">
+        <record id="pt" model="product.code.prefix">
+            <field name="name">Producto terminado</field>
+            <field name="code">PT</field>
+        </record>
+        <record id="pt" model="product.code.prefix">
+            <field name="name">Materia prima</field>
+            <field name="code">MP</field>
+        </record>
+        <record id="pt" model="product.code.prefix">
+            <field name="name">Semiprocesado</field>
+            <field name="code">SP</field>
+        </record>
+        <record id="pt" model="product.code.prefix">
+            <field name="name">Consumibles</field>
+            <field name="code">CS</field>
+        </record>
+    </data>
+</odoo>
