@@ -20,10 +20,13 @@ class AccountPayment(models.Model):
                                   LIMIT 1), 1.0) AS rate
                    FROM res_currency c
                    WHERE c.id IN (%s)"""
-        self._cr.execute(query, (date, company.id, currency.id))
-        currency_rates = dict(self._cr.fetchall())
+        try:
+            self._cr.execute(query, (date, company.id, currency.id))
+            currency_rates = dict(self._cr.fetchall())
+        except:
+            currency_rates = dict(id=1,rate=1.0)
         return currency_rates
-
+        
     @api.depends(
         "date",
         "company_id",
@@ -31,15 +34,17 @@ class AccountPayment(models.Model):
     )
     def _compute_currency_rate_amount(self):
         currencyRate=0
-        
-        for item in self:
-            if item.currency_id != item.company_id.currency_id:
-                rates = self.get_rates(item.currency_id, item.company_id, item.date)
-                currencyRate = rates.get(item.currency_id.id)
-                if currencyRate == 1.0:
-                    item.currency_rate_amount = -1
-                    raise ValidationError(_('Currency rate not found for date ') + str(item.date))
+        try:
+            for item in self:
+                if item.currency_id != item.company_id.currency_id:
+                    rates = self.get_rates(item.currency_id, item.company_id, item.date)
+                    currencyRate = rates.get(item.currency_id.id)
+                    if currencyRate == 1.0:
+                        item.currency_rate_amount = -1
+                        raise ValidationError(_('Currency rate not found for date ') + str(item.date))
+                    else:
+                        item.currency_rate_amount = 1/currencyRate
                 else:
-                    item.currency_rate_amount = 1/currencyRate
-            else:
-                item.currency_rate_amount = 1
+                    item.currency_rate_amount = 1
+        except:
+            item.currency_rate_amount = 1
