@@ -8,7 +8,7 @@ class MrpWorkCenter(models.Model):
     inventory_account_id = fields.Many2one('account.account', string="Cuenta produccion en proceso", required=True)
     expense_account_id = fields.Many2one('account.account', string="Cuenta gasto", required=True)
 
-    standard_employee_cost = fields.Boolean(string="Costo estandar", help="Al estar activo obtendra el costo por hora desde el centro de trabajo y no desde los empleados")
+    standard_employee_cost = fields.Boolean(string="Costo estandar empleados", help="Al estar activo obtendra el costo por hora desde el centro de trabajo y no desde los empleados")
 
 class MrpWorkcenterProductivity(models.Model):
     _inherit = "mrp.workcenter.productivity"
