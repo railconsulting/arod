@@ -38,16 +38,13 @@ class AccountPayment(models.Model):
         else:
             records = self.reconciled_bill_ids
 
-        lines = records.line_ids
         exchange_moves = []
-        exchange_entries = self.env['account.move.line'].search([
-            '|','|',
-            ('journal_id','=', exchange_journal.id),
-            ('matched_debit_ids', 'in', lines.ids),
-            ('matched_credit_ids', 'in', lines.ids),
-        ])
+        source_lines = records.line_ids.filtered(lambda x: x.matched_debit_ids or x.matched_credit_ids)
+        exchange_entries = source_lines.matched_debit_ids.filtered(lambda x: x.exchange_move_id)
+        exchange_entries += source_lines.matched_credit_ids.filtered(lambda x: x.exchange_move_id)
+        _logger.critical(str(exchange_entries))
         for entry in exchange_entries:
-            exchange_moves.append(entry.move_id.id)
+            exchange_moves.append(entry.exchange_move_id.id)
         moves = self.env['account.move'].search([('id','in',exchange_moves)])
 
         action = {

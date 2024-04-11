@@ -9,7 +9,7 @@
                 <page id="costing_preview" string="Pre-costeo">
                     <group>
                         <group string="Materiales">
-                            <field name="move_raw_ids" readonly="1">
+                            <field name="move_raw_ids">
                                 <tree create="0" edit="0" delete="0">
                                     <field name="product_id"/>
                                     <field name="price_unit"/>
