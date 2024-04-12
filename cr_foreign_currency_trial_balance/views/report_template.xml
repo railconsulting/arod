@@ -12,6 +12,14 @@
         </xpath>
     </template>
 
+    <template id="main_table_header" inherit_id="account_reports.main_table_header">
+        <xpath expr="//t[@t-set='sortable_column_classes']/../th" position="after">
+            <th colspan="2" t-if="options.get('filter_amount_currency') and index == len(options['columns'])" class="o_account_report_column_header" style="text-align: center">
+                <span>Amount in Currency</span>
+            </th>
+        </xpath>
+    </template>
+
     <template id="line_template" inherit_id="account_reports.line_template">
         <td t-if="options.get('show_growth_comparison')" position="before">
             <td t-if="options.get('filter_amount_currency') and (line.get('cr_amount_currency') or 'total' in line.get('id',''))">
@@ -23,7 +31,7 @@
                                     style="padding-right:0; padding-top:0; padding-bottom:0; text-align:right;"
                                     class="number o_account_report_line">
                                     <span class="o_account_report_column_value"
-                                        t-out="line.get('cr_amount_currency')" />
+                                        t-out="'%.2f' % line.get('cr_amount_currency',0)" />
                                 </td>
                             </tr>
                         </tbody>

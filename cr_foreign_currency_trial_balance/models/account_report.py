@@ -15,16 +15,18 @@ class GeneralLedgerCustomHandler(models.AbstractModel):
 
             tables, where_clause, where_params = report._query_get(
                 options, "normal", domain=[("account_id", "=", account.id)])
+            currency_table = self.env['res.currency']._get_query_currency_table(options)
             query = f"""
                 SELECT
-                    SUM(account_move_line.amount_currency) AS amount_currency
+                    SUM(ROUND(account_move_line.amount_currency * currency_table.rate,currency_table.precision)) AS amount_currency
                 FROM {tables}
                 LEFT JOIN res_company company_table ON company_table.id = "account_move_line__account_id".company_id
+               JOIN {currency_table} ON currency_table.company_id = account_move_line.company_id
                 WHERE {where_clause}
                 AND account_move_line.currency_id != company_table.currency_id
                 GROUP BY account_move_line.account_id
             """
-
+            #TODO: check journald where clause if amount_currency is not there            
             self._cr.execute(query, where_params)
             amount_currency_list = []
             for res in self._cr.dictfetchall():
@@ -33,6 +35,16 @@ class GeneralLedgerCustomHandler(models.AbstractModel):
             line_vals["cr_amount_currency"] = sum(amount_currency_list)
 
         return line_vals
+
+class TrialBalanceCustomHandler(models.AbstractModel):
+    _inherit = 'account.trial.balance.report.handler'
+    def _custom_options_initializer(self, report, options, previous_options=None):
+        """ Modifies the provided options to add a column group for initial balance and end balance, as well as the appropriate columns.
+        """
+
+        super()._custom_options_initializer(report, options, previous_options=previous_options)
+        if options.get('filter_amount_currency') and len(options.get('column_headers',[])) and len(options['column_headers'][0]):
+            options['column_headers'][0][-1]["colspan"] = 3
 
 
 class AccountReport(models.Model):
@@ -46,12 +58,13 @@ class AccountReport(models.Model):
             options['filter_amount_currency'] = (
                 previous_options or {}).get('filter_amount_currency', False)
 
-    def _get_column_headers_render_data(self, options):
-        if self.filter_amount_currency and options.get('filter_amount_currency'):
-            options['column_headers'][0].append({'name': 'Amount in Currency'})
-        result = super(
-            AccountReport, self)._get_column_headers_render_data(options)
-        return result
+    # def _get_column_headers_render_data(self, options):
+    #     if self.filter_amount_currency and options.get('filter_amount_currency'):
+    #         options['column_headers'][0].append({'name': 'Amount in Currency'})
+    #     result = super(
+    #         AccountReport, self)._get_column_headers_render_data(options)
+    #     return result
+            
 
     def _get_lines(self, options, all_column_groups_expression_totals=None):
         lines = super(AccountReport, self)._get_lines(options,all_column_groups_expression_totals)

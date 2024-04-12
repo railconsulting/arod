@@ -28,7 +28,7 @@ class AccountPaymentInvoices(models.Model):
 class AccountPayment(models.Model):
     _inherit = 'account.payment'
 
-    batch_reconcile = fields.Boolean(string="Batch reconcile", readonly=True, copy=False, store=True, states={"draft": [("readonly", False)]},)
+    batch_reconcile = fields.Boolean(string="Batch reconcile", readonly=True, copy=False, store=True, states={"draft": [("readonly", False)]}, default=False)
 
     payment_invoice_ids = fields.One2many('account.payment.invoice', 'payment_id', string="Customer Invoices")
     payment_amount_due = fields.Monetary(compute='_payment_amount_due', string='Amount Due')
@@ -108,35 +108,36 @@ class AccountPayment(models.Model):
         super(AccountPayment, self).action_post()
         for payment in self:
             reconcile_amount = sum(payment.mapped('payment_invoice_ids').mapped('reconcile_amount'))
-            if payment.batch_reconcile and payment.amount == reconcile_amount:
-                for line_id in payment.payment_invoice_ids:
-                    if not line_id.reconcile_amount:
-                        continue
-                    if line_id.amount_total <= line_id.reconcile_amount:
-                        self.ensure_one()
-                        if payment.payment_type == 'inbound':
-                            lines = payment.move_id.line_ids.filtered(lambda line: line.credit > 0)
-                            lines += line_id.invoice_id.line_ids.filtered(
-                                lambda line: line.account_id == lines[0].account_id and not line.reconciled)
-                            lines.reconcile()
-                        elif payment.payment_type == 'outbound':
-                            lines = payment.move_id.line_ids.filtered(lambda line: line.debit > 0)
-                            lines += line_id.invoice_id.line_ids.filtered(
-                                lambda line: line.account_id == lines[0].account_id and not line.reconciled)
-                            lines.reconcile()
-                    else:
-                        self.ensure_one()
-                        if payment.payment_type == 'inbound':
-                            lines = payment.move_id.line_ids.filtered(lambda line: line.credit > 0)
-                            lines += line_id.invoice_id.line_ids.filtered(
-                                lambda line: line.account_id == lines[0].account_id and not line.reconciled)
-                            lines.with_context(amount=line_id.reconcile_amount).reconcile()
-                        elif payment.payment_type == 'outbound':
-                            lines = payment.move_id.line_ids.filtered(lambda line: line.debit > 0)
-                            lines += line_id.invoice_id.line_ids.filtered(
-                                lambda line: line.account_id == lines[0].account_id and not line.reconciled)
-                            lines.with_context(amount=line_id.reconcile_amount).reconcile()
-            else:
-                raise UserError('El monto a reconciliar no coincide con el monto del pago')
+            if payment.batch_reconcile:
+                if payment.amount == reconcile_amount:
+                    for line_id in payment.payment_invoice_ids:
+                        if not line_id.reconcile_amount:
+                            continue
+                        if line_id.amount_total <= line_id.reconcile_amount:
+                            self.ensure_one()
+                            if payment.payment_type == 'inbound':
+                                lines = payment.move_id.line_ids.filtered(lambda line: line.credit > 0)
+                                lines += line_id.invoice_id.line_ids.filtered(
+                                    lambda line: line.account_id == lines[0].account_id and not line.reconciled)
+                                lines.reconcile()
+                            elif payment.payment_type == 'outbound':
+                                lines = payment.move_id.line_ids.filtered(lambda line: line.debit > 0)
+                                lines += line_id.invoice_id.line_ids.filtered(
+                                    lambda line: line.account_id == lines[0].account_id and not line.reconciled)
+                                lines.reconcile()
+                        else:
+                            self.ensure_one()
+                            if payment.payment_type == 'inbound':
+                                lines = payment.move_id.line_ids.filtered(lambda line: line.credit > 0)
+                                lines += line_id.invoice_id.line_ids.filtered(
+                                    lambda line: line.account_id == lines[0].account_id and not line.reconciled)
+                                lines.with_context(amount=line_id.reconcile_amount).reconcile()
+                            elif payment.payment_type == 'outbound':
+                                lines = payment.move_id.line_ids.filtered(lambda line: line.debit > 0)
+                                lines += line_id.invoice_id.line_ids.filtered(
+                                    lambda line: line.account_id == lines[0].account_id and not line.reconciled)
+                                lines.with_context(amount=line_id.reconcile_amount).reconcile()
+                else:
+                    raise UserError('El monto a reconciliar no coincide con el monto del pago')
 
         return True

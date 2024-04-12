@@ -38,6 +38,9 @@ class MrpProduction(models.Model):
                                 inv_account = t.user_id.employee_id.inventory_account_id.id
                                 exp_account = t.user_id.employee_id.expense_account_id.id
 
+                            if not user:
+                                raise ValidationError('Algo ha salido mal, revisa que todos los datos sean correctos en los tiempos de trabajo')
+
                             if not inv_account or not exp_account:
                                 raise ValidationError("No se encuentra un cuenta contable valida para: "
                                                       + user.name)
@@ -112,12 +115,13 @@ class MrpProduction(models.Model):
                         'journal_id': r.company_id.wc_journal_id.id,
                         'line_ids': lines,
                     })
-                if move.amount_total_signed > 0:
-                    move._post()
-                else:
-                    raise ValidationError("El asiento contable para los centros de trabajo ha sido mal registrado.\n"
-                                          +"Por favor revisa la configuracion contable en cada centro de trabajo")
-                r.write({
-                    'wc_move_id': move.id
-                })
+                    if move:
+                        move._post()
+                        r.write({
+                            'wc_move_id': move.id
+                        })
+                    else:
+                        raise ValidationError("El asiento contable para los centros de trabajo ha sido mal registrado.\n"
+                                            +"Por favor revisa la configuracion contable en cada centro de trabajo")
+                
         return res
