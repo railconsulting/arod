@@ -26,7 +26,7 @@ class AccountPayment(models.Model):
         except:
             currency_rates = dict(id=1,rate=1.0)
         return currency_rates
-        
+
     @api.depends(
         "date",
         "company_id",
@@ -37,7 +37,7 @@ class AccountPayment(models.Model):
         try:
             for item in self:
                 if item.currency_id != item.company_id.currency_id:
-                    rates = self.get_rates(item.currency_id, item.company_id, item.date)
+                    rates = self.get_rates(item.currency_id.id, item.company_id, item.date)
                     currencyRate = rates.get(item.currency_id.id)
                     if currencyRate == 1.0:
                         item.currency_rate_amount = -1
@@ -47,4 +47,5 @@ class AccountPayment(models.Model):
                 else:
                     item.currency_rate_amount = 1
         except:
-            item.currency_rate_amount = 1
+            item.currency_rate_amount = 1    
+                

@@ -13,7 +13,7 @@ patch(Tablet.prototype, 'cr_mrp_workorder_hr', {
             [this.workorderId, employeeId],
         );
         if (employee_is_in_another_workorder) {
-            this.notification.add(this.env._t('Employee is already working on another workorder!'), {type: 'danger'});
+            this.notification.add(this.env._t('El empleado ya esta registrado en otra orden de trabajo!!!'), {type: 'danger'});
             this.actionRedirect = this.startEmployee;
             return
         }

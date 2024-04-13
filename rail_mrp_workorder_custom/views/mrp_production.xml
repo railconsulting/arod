@@ -9,15 +9,16 @@
                 <page id="costing_preview" string="Pre-costeo">
                     <group>
                         <group string="Materiales">
-                            <field name="move_raw_ids">
+                            <field name="pre_move_raw_ids">
                                 <tree create="0" edit="0" delete="0">
+                                    <field name="state" invisible="1"/>
                                     <field name="product_id"/>
                                     <field name="price_unit"/>
                                 </tree>
                             </field>
                         </group>
                         <group string="Mano de obra">
-                            <field name="workorder_ids">
+                            <field name="pre_workorder_ids">
                                 <tree create="0" edit="0" delete="0">
                                     <field name="workcenter_id"/>
                                     <field name="product_id"/>
@@ -30,16 +31,12 @@
                     <group string="Resumen">
                         <group>
                             <field name="total_material_cost"/>
-                        </group>
-                        <group>
                             <field name="total_labour_emp_cost"/>
-                        </group>
-                        <group>
                             <field name="total_labour_wo_cost"/>
                         </group>
                         <group>
                             <h4>
-                                <field name="total_cost"/>
+                                TOTAL:<field name="total_cost"/>
                             </h4>
                         </group>
                     </group>
