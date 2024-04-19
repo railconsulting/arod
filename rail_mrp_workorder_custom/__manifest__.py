@@ -1,5 +1,5 @@
 {
-    "name": "MRP Workorder Custom",
+    "name": "Personalizaciones para AROD",
     "summary": """MRP Workorder Custom Screen""",
     "description": """ MRP Workorder Custom Screen""",
     "version": "16.0.3",
@@ -7,8 +7,11 @@
     "application": True,
     "license": "OPL-1",
     "data": [
+        'security/ir.model.access.csv',
+        'wizard/payment_integration_moves.xml',
         'views/mrp_production.xml',
         #'views/mrp_workorder.xml',
+        'views/account_payment.xml',
     ],
     'assets': {
        'web.assets_backend': [
