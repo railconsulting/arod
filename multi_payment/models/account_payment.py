@@ -20,7 +20,7 @@ class AccountPaymentInvoices(models.Model):
     @api.constrains('reconcile_amount')
     def _check_reconcile_amount(self):
         for rec in self:
-            if rec.residual < rec.reconcile_amount or rec.reconcile_amount <= 0.0 and rec.batch_reconcile:
+            if rec.residual < rec.reconcile_amount or rec.reconcile_amount <= 0.0:
                 raise UserError(_("Enter the Due amount correctly"))
 
 
@@ -33,21 +33,21 @@ class AccountPayment(models.Model):
     payment_invoice_ids = fields.One2many('account.payment.invoice', 'payment_id', string="Customer Invoices")
     payment_amount_due = fields.Monetary(compute='_payment_amount_due', string='Amount Due')
     applied_amount = fields.Monetary(compute='_payment_amount_due', string='Applied Amount')
-    #amount = fields.Monetary(currency_field='currency_id', compute='get_amount_payment')
+    amount = fields.Monetary(currency_field='currency_id', compute='get_amount_payment', store=True, readonly=False)
 
     @api.onchange('is_internal_transfer')
     def _onchange_internal_transfer_for_batch(self):
         if self.is_internal_transfer == True:
             self.batch_reconcile = False
 
-    """ @api.depends('payment_invoice_ids.reconcile_amount')
+    @api.depends('payment_invoice_ids.reconcile_amount')
     def get_amount_payment(self):
         for rec in self:
             if rec.batch_reconcile:
                 amount = sum(rec.mapped('payment_invoice_ids').mapped('reconcile_amount'))
                 rec.amount = amount
             else:
-                rec.amount = rec.amount """
+                rec.amount = rec.amount
 
     def _payment_amount_due(self):
         for rec in self:

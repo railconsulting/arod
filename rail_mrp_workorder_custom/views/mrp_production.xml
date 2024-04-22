@@ -20,6 +20,7 @@
                         <group string="Mano de obra">
                             <field name="pre_workorder_ids">
                                 <tree create="0" edit="0" delete="0">
+                                    <field name="state" invisible="1"/>
                                     <field name="workcenter_id"/>
                                     <field name="product_id"/>
                                     <field name="duration_expected"/>

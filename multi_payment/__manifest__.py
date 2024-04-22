@@ -4,13 +4,14 @@
     "description": """
         Using this module you can pay multiple invoice payment in one click.
     """,
-    'author': 'Kevin Lopez for Rail',
+    'author': 'Kevin Lopez',
     'website': "http://www.odugt.com",
     'category': "Accounting",
     'summary': "Using this module you can pay multiple invoice payment in one click. Multiple invoice payment in one "
                "click for customer",
     "depends": [
         "account",
+        'account_edi',
     ],
     'data': [
         'security/ir.model.access.csv',

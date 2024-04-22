@@ -47,5 +47,4 @@ class AccountPayment(models.Model):
                 else:
                     item.currency_rate_amount = 1
         except:
-            item.currency_rate_amount = 1    
-                
+            item.currency_rate_amount = 1

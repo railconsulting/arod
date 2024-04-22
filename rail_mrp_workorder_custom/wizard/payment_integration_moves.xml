@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+        <record id="view_payment_integration_wizard" model="ir.ui.view">
+            <field name="name">view.payment.integration.wizard</field>
+            <field name="model">payment.integration.moves</field>
+            <field name="arch" type="xml">
+                <form string="Make Adjustment Entry">
+                    <field name="payment_id" readonly="1" force_save="1"/>
+                    <field name="preview_data" widget="grouped_view_widget"/>
+                    <footer>
+                        <!--button string='PDF' name="create_entries" type="object" class="btn-primary" data-hotkey="q"/>
+                        <button string='XLS' name="create_entries" type="object" class="btn-primary" data-hotkey="q"/-->
+                        <button string="Cancel" class="btn-secondary" special="cancel" data-hotkey="z"/>
+                    </footer>
+               </form>
+            </field>
+        </record>
+    </data>
+</odoo>

@@ -102,11 +102,11 @@ class ReportLandedCosts(models.Model):
             'bold': True,
             'italic': True,
             'bottom': 6,
-            'num_format': '[$Q]#,##0.00',
+            'num_format': '[$'+company_id.currency_id.symbol+']#,##0.00',
         })
         subtotal_expenses = workbook.add_format({
             'bold': True,
-            'num_format': '[$Q]#,##0.00'
+            'num_format': '[$'+company_id.currency_id.symbol+']#,##0.00',
         })
         expense_header = workbook.add_format({
             'bold':True,
@@ -117,7 +117,7 @@ class ReportLandedCosts(models.Model):
             'bg_color': '#E3DFED',
         })        
         money_style = workbook.add_format({
-            'num_format': '[$Q]#,##0.00',
+            'num_format': '[$'+company_id.currency_id.symbol+']#,##0.00',
         })
 
 

@@ -11,6 +11,5 @@
     'depends': ['stock_account'],
     'license': 'LGPL-3',
     'data': [
-        'views/account_payment.xml',
     ],
 }

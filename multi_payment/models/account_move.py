@@ -1,7 +1,48 @@
 from odoo import _, api, fields, models
 from datetime import date
 from odoo.exceptions import UserError
+import logging
 
+_logger = logging.getLogger(__name__)
+
+class Accountmove(models.Model):
+    _inherit = 'account.move'
+
+    def _update_payments_edi_documents(self):
+        ''' Update the edi documents linked to the current journal entries. These journal entries must be linked to an
+        account.payment of an account.bank.statement.line. This additional method is needed because the payment flow is
+        not the same as the invoice one. Indeed, the edi documents must be updated when the reconciliation with some
+        invoices is changing.
+        '''
+        edi_document_vals_list = []
+        for payment in self:
+            edi_formats = payment._get_reconciled_invoices().journal_id.edi_format_ids + payment.edi_document_ids.edi_format_id
+            edi_formats = self.env['account.edi.format'].browse(edi_formats.ids) # Avoid duplicates
+            for edi_format in edi_formats:
+                existing_edi_document = payment.edi_document_ids.filtered(lambda x: x.edi_format_id == edi_format)
+                move_applicability = edi_format._get_move_applicability(payment)
+                if move_applicability:
+                    if existing_edi_document:
+                        existing_edi_document.write({
+                            'state': 'to_send',
+                            'error': False,
+                            'blocking_level': False,
+                        })
+                    else:
+                        edi_document_vals_list.append({
+                            'edi_format_id': edi_format.id,
+                            'move_id': payment.id,
+                            'state': 'to_send',
+                        })
+                elif existing_edi_document:
+                    existing_edi_document.write({
+                        'state': False,
+                        'error': False,
+                        'blocking_level': False,
+                    })
+        _logger.critical(str(edi_document_vals_list))
+        self.env['account.edi.document'].create(edi_document_vals_list)
+        self.edi_document_ids._process_documents_no_web_services()
 
 class AccountMoveLine(models.Model):
     _inherit = 'account.move.line'
