@@ -55,7 +55,7 @@ class PaymentIntegrationMoves(models.TransientModel):
             exchange_moves.append(entry.exchange_move_id.id)
         moves = self.env['account.move'].search([('id','in',exchange_moves)])
 
-        moves += self.env['account.move'].search([('tax_cash_basis_origin_move_id','in', records.ids)])
+        moves += self.env['account.move'].search([('tax_cash_basis_origin_move_id','in', records.ids),('state','=','posted')])
 
         for m in moves:
             for line in m.line_ids:
@@ -64,7 +64,7 @@ class PaymentIntegrationMoves(models.TransientModel):
                     'debit': float(line.debit),
                     'credit': float(line.credit),
                     'amount_currency': float(line.amount_currency),
-                    'currency_id': line.currency_id.symbol,
+                    'currency_id': line.currency_id.name,
                     'account_id': line.account_id.id
                 }))
         return {

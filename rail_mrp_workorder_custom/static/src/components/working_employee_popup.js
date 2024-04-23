@@ -9,7 +9,7 @@ patch(Tablet.prototype, 'cr_mrp_workorder_hr', {
         const superMethod = this._super.bind(this);
         let employee_is_in_another_workorder = await this.orm.call(
             'mrp.workorder',
-            'cr_check_employee_is_in_another_workorder',
+            'check_employee_is_in_another_workorder',
             [this.workorderId, employeeId],
         );
         if (employee_is_in_another_workorder) {
