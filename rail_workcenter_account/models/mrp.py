@@ -9,7 +9,7 @@ _logger = logging.getLogger(__name__)
 class MrpProduction(models.Model):
     _inherit = 'mrp.production'
 
-    wc_move_id = fields.Many2one('acount.move')
+    wc_move_id = fields.Many2one('acount.move', copy=False)
 
     def button_mark_done(self):
         res = super(MrpProduction, self).button_mark_done()
@@ -109,6 +109,9 @@ class MrpProduction(models.Model):
                     lines.append(credit)
                     total += round(wo.workcenter_id.costs_hour * (wo.duration / 60),2)
                 if total > 0:
+                    if not r.company_id.wc_journal_id:
+                        raise ValidationError("No se ha configurado un diario para los asientos de centros de trabajo, contacta al administrador para que lo configure en:\n"
+                                              +"Ajustes > Fabricacion > Seccion de Operaciones: Diario contable para entradas de centros de trabajo")
                     move = self.env['account.move'].create({
                         'move_type': 'entry',
                         'ref': 'CENTROS DE TRABAJO: ' + r.name,
