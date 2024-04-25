@@ -21,8 +21,8 @@ class MrpWorkorder(models.Model):
         return res
 
 
-    def cr_check_employee_is_in_another_workorder(self,employee_id):
-        employee_workorder = self.search([('id','!=',self.id),('employee_ids','in',employee_id)])
+    def check_employee_is_in_another_workorder(self,employee_id):
+        employee_workorder = self.search([('id','!=',self.id),('employee_ids','in',employee_id),('state','not in',['done','cancel'])])
         return bool(employee_workorder)
 
     def button_start(self):

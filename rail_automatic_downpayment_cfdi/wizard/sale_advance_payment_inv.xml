@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="inherit_sale_advance_payment_inv" model="ir.ui.view">
+        <field name="name">Invoice Orders</field>
+        <field name="model">sale.advance.payment.inv</field>
+        <field name="inherit_id" ref="sale.view_sale_advance_payment_inv"/>
+        <field name="arch" type="xml">
+            <xpath expr="//form[1]" position="replace">
+                <form string="Invoice Sales Order">
+                    <p class="oe_grey">
+                        Las facturas se crearan como borrador para que pueda revisarlas antes de validarlas.
+                    </p>
+                    <group>
+                        <group>
+                            <field name="sale_order_ids" invisible="1"/>
+                            <field name="has_down_payments" invisible="1"/>
+                            <field name="count" attrs="{'invisible': [('count', '=', 1)]}"/>
+                            <field name="advance_payment_method" class="oe_inline" widget="radio" attrs="{'invisible': [('count', '&gt;', 1)]}"/>
+                            <label for="deduct_down_payments" string="" attrs="{'invisible': ['|', ('has_down_payments', '=', False), ('advance_payment_method', '!=', 'delivered')]}"/>
+                            <div attrs="{'invisible': ['|', ('has_down_payments', '=', False), ('advance_payment_method', '!=', 'delivered')]}" id="down_payment_details">
+                                <field name="deduct_down_payments" nolabel="1"/>
+                                <label for="deduct_down_payments"/>
+                            </div>
+                        </group>
+                        <!--Credit Notes-->
+                        <group>
+                            <field name="auto_cfdi_flow" attrs="{'invisible':['|',('deduct_down_payments','=',True),('advance_payment_method','!=','delivered')]}"/>
+                            <field name="l10n_mx_edi_origin" readonly="1" force_save="1" attrs="{'invisible':[('auto_cfdi_flow','=',False)],'required':[('auto_cfdi_flow','=',True)]}"/>
+                            <field name="origin_move_id" readonly="1" force_save="1" attrs="{'invisible':[('auto_cfdi_flow','=',False)],'required':[('auto_cfdi_flow','=',True)]}"/>
+                            <field name="nc_date_mode" attrs="{'invisible':[('auto_cfdi_flow','=',False)],'required':[('auto_cfdi_flow','=',True)]}"/>
+                            <field name="nc_date" attrs="{'invisible':['|',('auto_cfdi_flow','=',False),('nc_date_mode','=','entry')],'required':[('auto_cfdi_flow','=',True),('nc_date_mode','=','custom')]}"/>
+                            <field name="nc_reason" attrs="{'invisible':[('auto_cfdi_flow','=',False)],'required':[('auto_cfdi_flow','=',True)]}"/>
+                            <field name="nc_journal_id" attrs="{'invisible':[('auto_cfdi_flow','=',False)],'required':[('auto_cfdi_flow','=',True)]}"/>
+                        </group>
+                    </group>
+                    <group>
+                        <group name="down_payment_specification" attrs="{'invisible': [('advance_payment_method', 'not in', ('fixed', 'percentage'))]}">
+                            <field name="company_id" invisible="1"/>
+                            <field name="product_id" invisible="1"/>
+                            <label for="amount"/>
+                            <div id="payment_method_details">
+                                <field name="currency_id" invisible="1"/>
+                                <field name="fixed_amount" attrs="{'required': [('advance_payment_method', '=', 'fixed')],'invisible': [('advance_payment_method', '!=', 'fixed')]}" class="oe_inline"/>
+                                <field name="amount" attrs="{'required': [('advance_payment_method', '=', 'percentage')],'invisible': [('advance_payment_method', '!=', 'percentage')]}" class="oe_inline"/>
+                                <span attrs="{'invisible': [('advance_payment_method', '!=', 'percentage')]}" class="oe_inline">%</span>
+                            </div>
+                            <field name="deposit_account_id" options="{'no_create': True}" attrs="{'invisible': [('product_id', '!=', False)]}" groups="account.group_account_manager"/>
+                            <field name="deposit_taxes_id" widget="many2many_tags" attrs="{'invisible': [('product_id', '!=', False)]}"/>
+                        </group>
+                    </group>
+                    <footer>
+                        <button name="create_invoices" type="object" id="create_invoice_open" string="Create and View Invoice" context="{'open_invoices': True}" class="btn-primary" data-hotkey="q"/>
+                        <button name="create_invoices" type="object" id="create_invoice" string="Create Invoice" data-hotkey="w"/>
+                        <button string="Cancel" class="btn-secondary" special="cancel" data-hotkey="z"/>
+                    </footer>
+                </form>
+            </xpath>
+        </field>
+    </record>
+</odoo>
