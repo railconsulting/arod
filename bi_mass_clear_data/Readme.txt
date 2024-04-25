@@ -1,2 +1,0 @@
-----> 16.0.0.1
-----> Migrated bi_mass_clear_data module v15 to v16.
