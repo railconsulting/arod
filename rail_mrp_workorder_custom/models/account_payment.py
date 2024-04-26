@@ -66,7 +66,7 @@ class AccountPayment(models.Model):
         """Show all move lines related to the payment in the same view."""
         form = self.env.ref('rail_mrp_workorder_custom.view_payment_integration_wizard', False)
         return {
-            'name': _("Make Adjustment Entry"),
+            'name': _("Integracion"),
             'type': 'ir.actions.act_window',
             'res_model': 'payment.integration.moves',
             'view_mode': 'form',

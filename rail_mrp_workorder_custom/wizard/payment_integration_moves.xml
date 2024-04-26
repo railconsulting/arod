@@ -6,12 +6,23 @@
             <field name="model">payment.integration.moves</field>
             <field name="arch" type="xml">
                 <form string="Make Adjustment Entry">
-                    <field name="payment_id" readonly="1" force_save="1"/>
-                    <field name="preview_data" widget="grouped_view_widget"/>
+                    <field name="move_lines" widget="section_and_note_one2many">
+                        <tree create="0" edit="0" delete="0">
+                            <field name="is_subtotal" invisible="1"/>
+                            <field name="display_type" invisible="1"/>
+                            <field name="sequence" widget="handle" invisible="1"/>
+                            <field name="name" widget="section_and_note_text"/>
+                            <field name="account_id" attrs="{'invisible':[('display_type','=','line_section')]}"/>
+                            <field name="currency_id" attrs="{'invisible':[('display_type','=','line_section')]}" optional="hide"/>
+                            <field name="amount_currency" attrs="{'invisible':[('display_type','=','line_section')]}" optional="hide"/>
+                            <field name="debit" attrs="{'invisible':[('display_type','=','line_section')]}"/>
+                            <field name="credit" attrs="{'invisible':[('display_type','=','line_section')]}"/>
+                        </tree>
+                    </field>
+                    <!--field name="preview_data" widget="grouped_view_widget"/-->
                     <footer>
-                        <!--button string='PDF' name="create_entries" type="object" class="btn-primary" data-hotkey="q"/>
-                        <button string='XLS' name="create_entries" type="object" class="btn-primary" data-hotkey="q"/-->
-                        <button string="Cancel" class="btn-secondary" special="cancel" data-hotkey="z"/>
+                        <button string='PDF' name="generate_report" type="object" class="btn-primary" data-hotkey="q"/>
+                        <!--button string='XLS' name="create_entries" type="object" class="btn-primary" data-hotkey="q"/-->
                     </footer>
                </form>
             </field>

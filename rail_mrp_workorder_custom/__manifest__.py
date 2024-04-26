@@ -3,7 +3,7 @@
     "summary": """MRP Workorder Custom Screen""",
     "description": """ MRP Workorder Custom Screen""",
     "version": "16.0.3",
-    "depends": ["mrp","mrp_workorder_hr"],
+    "depends": ["account","mrp","mrp_workorder_hr"],
     "application": True,
     "license": "OPL-1",
     "data": [
@@ -12,6 +12,7 @@
         'views/mrp_production.xml',
         #'views/mrp_workorder.xml',
         'views/account_payment.xml',
+        'reports/payment_integration_report.xml',
     ],
     'assets': {
        'web.assets_backend': [

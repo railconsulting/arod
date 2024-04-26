@@ -28,6 +28,13 @@ class SaleAdvancePaymentInv(models.TransientModel):
         check_company=True,
         help='If empty, uses the journal of the journal entry to be reversed.',
     )
+    product_id = fields.Many2one(
+        comodel_name='product.product',
+        string="Down Payment Product",
+        domain=[('type', '=', 'service'),('product_tmpl_id.downpayment_product','=',True)],
+        compute='_compute_product_id',
+        readonly=False,
+        store=True)
 
     @api.depends('auto_cfdi_flow')
     def _get_cfdi_origin(self):
