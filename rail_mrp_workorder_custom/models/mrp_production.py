@@ -35,6 +35,12 @@ class MrpProduction(models.Model):
             raise ValidationError(message)
 
         return res
+    
+    def unlink(self):
+        for production in self:
+            if production.state == 'confirmed':
+                raise ValidationError("No puedes eliminar una orden de produccion en estado confirmado.")
+        return super(MrpProduction,self).unlink()
 
     @api.depends('move_raw_ids','workorder_ids')
     def _get_totals(self):

@@ -9,6 +9,7 @@
     "data": [
         'security/ir.model.access.csv',
         'wizard/payment_integration_moves.xml',
+        'wizard/bank_flow_wizard.xml',
         'views/mrp_production.xml',
         #'views/mrp_workorder.xml',
         'views/account_payment.xml',
