@@ -1,3 +1,6 @@
 id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
 access_payment_integration_moves,access.payment.integration.moves,model_payment_integration_moves,account.group_account_readonly,1,1,1,1
 access_payment_integration_lines,access.payment.integartion.lines,model_payment_integration_lines,account.group_account_readonly,1,1,1,1
+access_bank_flow_wiz,access.bank.flow.wiz,model_bank_flow_wizard,account.group_account_readonly,1,1,1,1
+access_expense_report_wiz,access.expense.report.wiz,model_expenses_report_wizard,account.group_account_readonly,1,1,1,1
+
