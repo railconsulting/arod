@@ -12,7 +12,7 @@
         </xpath>
     </template>
 
-    <template id="main_table_header" inherit_id="account_reports.main_table_header">
+   <!-- <template id="main_table_header" inherit_id="account_reports.main_table_header">
         <xpath expr="//t[@t-set='sortable_column_classes']/../th" position="after">
             <th colspan="2" t-if="options.get('filter_amount_currency') and index == len(options['columns'])" class="o_account_report_column_header" style="text-align: center">
                 <span>Amount in Currency</span>
@@ -39,5 +39,5 @@
                 </div>
             </td>
         </td>
-    </template>
+    </template>-->
 </odoo>

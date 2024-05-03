@@ -33,7 +33,15 @@ class GeneralLedgerCustomHandler(models.AbstractModel):
                 amount_currency_list.append(res.get("amount_currency"))
 
             line_vals["cr_amount_currency"] = sum(amount_currency_list)
+            rounding = self.env.company.currency_id.decimal_places
+            amount_currency = self.env['account.report'].format_value(value=line_vals["cr_amount_currency"], figure_type='monetary', digits=rounding)
+            line_vals["cr_amount_currency_formatted"] = amount_currency
 
+            line_vals['columns'][6] = {
+                'class': 'number',
+                'name': line_vals.get("cr_amount_currency_formatted", " "),
+                'no_format': line_vals.get("cr_amount_currency", 0)
+            }
         return line_vals
 
 class TrialBalanceCustomHandler(models.AbstractModel):
@@ -67,14 +75,33 @@ class AccountReport(models.Model):
             
 
     def _get_lines(self, options, all_column_groups_expression_totals=None):
+        if options.get('filter_amount_currency'):
+            column_copy = options['columns'][-1].copy()
+            column_copy['expression_label'] = 'amount_currency'
+            column_copy['name'] = 'Amount in currency'
+            options['columns'].append(column_copy)
+
         lines = super(AccountReport, self)._get_lines(options,all_column_groups_expression_totals)
         if lines:
             total_line = lines[-1]
             if total_line and total_line.get("id","").startswith('total'):
+                total_line["cr_amount_currency"] = 0
                 for line in lines[:-1]:
                     if "cr_amount_currency" not in total_line:
                         total_line["cr_amount_currency"] = line.get("cr_amount_currency",0)
                     else:
                         total_line["cr_amount_currency"] += line.get("cr_amount_currency",0)
+                rounding = self.env.company.currency_id.decimal_places
+                amount_currency = self.format_value(value=total_line["cr_amount_currency"], figure_type='monetary',
+                                                    digits=rounding, blank_if_zero=False)
+                total_line['cr_amount_currency_formatted'] = amount_currency
+
+                if len(total_line['columns']) > 6:
+                    total_line['columns'][6] = {
+                        'class': 'number',
+                        'name': total_line.get("cr_amount_currency_formatted", " "),
+                        'no_format': total_line.get("cr_amount_currency", 0)
+                    }
+
         return lines
 
