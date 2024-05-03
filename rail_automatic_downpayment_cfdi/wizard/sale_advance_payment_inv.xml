@@ -36,7 +36,7 @@
                     <group>
                         <group name="down_payment_specification" attrs="{'invisible': [('advance_payment_method', 'not in', ('fixed', 'percentage'))]}">
                             <field name="company_id" invisible="1"/>
-                            <field name="product_id" invisible="1"/>
+                            <field name="product_id"/>
                             <label for="amount"/>
                             <div id="payment_method_details">
                                 <field name="currency_id" invisible="1"/>
@@ -49,8 +49,8 @@
                         </group>
                     </group>
                     <footer>
-                        <button name="create_invoices" type="object" id="create_invoice_open" string="Create and View Invoice" context="{'open_invoices': True}" class="btn-primary" data-hotkey="q"/>
-                        <button name="create_invoices" type="object" id="create_invoice" string="Create Invoice" data-hotkey="w"/>
+                        <button name="create_invoices" type="object" id="create_invoice_open" string="Crear y ver factura" context="{'open_invoices': True}" class="btn-primary" data-hotkey="q"/>
+                        <button name="create_invoices" type="object" id="create_invoice" string="Crear factura" data-hotkey="w"/>
                         <button string="Cancel" class="btn-secondary" special="cancel" data-hotkey="z"/>
                     </footer>
                 </form>

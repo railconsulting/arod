@@ -19,6 +19,7 @@
 
     # always loaded
     'data': [
+        'views/product_template.xml',
         'wizard/sale_advance_payment_inv.xml',
     ],
 }
