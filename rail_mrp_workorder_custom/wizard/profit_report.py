@@ -34,7 +34,7 @@ class SaleProfitReport(models.TransientModel):
         if self.branch_ids:
             domain.append(('move_id.branch_id','in', self.branch_ids.ids))
         if self.currency_ids:
-            domain.append(('move_id.currency_id','in', self.currency_id.ids))
+            domain.append(('move_id.currency_id','in', self.currency_ids.ids))
         if self.partner_tags:
             domain.append(('move_id.partner_id.category_id','in', self.partner_tags.ids))
         if self.user_ids:
