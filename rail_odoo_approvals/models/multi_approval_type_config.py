@@ -670,6 +670,8 @@ Approval Type is not configured properly, contact your administrator for help!
                 raise UserError(self._make_err_msg(True))
             # Could not update state field
             if approval_type.state_field and approval_type.state_field in vals:
+                _logger.critical("VALS: " + str(vals))
+                _logger.critical("APPROVAL_TYPE.STATE_FIELD: " + str(approval_type.state_field))
                 raise UserError(self._make_err_msg())
         return True
 

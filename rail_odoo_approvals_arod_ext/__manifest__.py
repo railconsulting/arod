@@ -18,7 +18,7 @@
         
         # Add menu after actions.
         'views/account_move.xml',
-        'views/account_payment.xml',
+        #'views/account_payment.xml',
         
     ],
     'test': [],
