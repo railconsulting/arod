@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <odoo>
     <record id="aprrovals_vendor_bill_arod_form" model="ir.ui.view">
-        <field name="name">approvals.vendor.bill.urbanos.inherit</field>
+        <field name="name">approvals.vendor.bill.arod.inherit</field>
         <field name="model">account.move</field>
         <field name="inherit_id" ref="account.view_move_form"/>
         <field name="arch" type="xml">
@@ -54,6 +54,7 @@
                     decoration-warning="approval_state == 'to_approve'" 
                     decoration-success="approval_state == 'approved'"
                     optional="show" invisible="context.get('default_move_type') != 'in_invoice'"/>
+                <field name="x_has_request_approval" string="Aprobacion enviada"/>
             </field>
         </field>
     </record>

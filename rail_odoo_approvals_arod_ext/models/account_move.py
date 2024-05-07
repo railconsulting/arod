@@ -7,10 +7,10 @@ import werkzeug.urls
 class AccountMove(models.Model):
     _inherit = 'account.move'
 
-    approval_state = fields.Selection(string="Aprobacion", selection=[
+    approval_state = fields.Selection(string="Estado aprobacion", selection=[
         ('to_approve','Por aprobar'),
         ('approved','Aprobado'),
-        ('rejected','Rechazado')], default='to_approve')
+        ('rejected','Rechazado')], default='to_approve', copy=False)
 
     def _get_obj_url(self, obj):
         base = 'web#'
@@ -42,7 +42,6 @@ class AccountMove(models.Model):
             types = self.env['multi.approval.type']._get_types(model_name)
             approval_type = self.env['multi.approval.type'].filter_type(
                 types, model_name, res_id)
-            
             record = r
             record_name = record.display_name or _('this object')
             title = _('Request approval for {}').format(record_name)
@@ -73,7 +72,7 @@ class AccountMove(models.Model):
             if record.x_has_request_approval and \
                     not approval_type.is_free_create:
                 raise UserError(
-                    _('Request has been created before !'))
+                    _('El registro:' + record.name + ' ya cuenta con una solicitud de aprobacion!'))
             # create request
             vals = {
                 'name': title,
@@ -86,9 +85,9 @@ class AccountMove(models.Model):
             }
             request = self.env['multi.approval'].create(vals)
             request.action_submit()
-            #record.update({
-            #        'approval_state': 'request'
-            #    })
+            record.update({
+                'x_has_request_approval': True
+            })
 
 
     def action_approve(self):
