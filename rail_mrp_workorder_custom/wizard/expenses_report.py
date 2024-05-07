@@ -36,7 +36,6 @@ class BankFlowWizard(models.TransientModel):
             report_data[group.name]['code'] = group.code_prefix_start
             for analytic in analytics:
                 amount = sum(abs(line.amount) for line in analytic_lines.filtered(lambda x: x.general_account_id.group_id.id == group.id and x.account_id.id == analytic.id))
-                _logger.critical(group.name+" / "+analytic.name+": "+str(amount))
                 report_data[group.name][analytic.name] = amount
 
         return report_data, analytics
@@ -75,8 +74,9 @@ class BankFlowWizard(models.TransientModel):
         table_footer = book.add_format({
             'border': 1,
             'bold':True,
+            'bg_color': '#CC9D2E',
             'font_color': 'black',
-            'align': 'center',
+            'align': 'right',
             'valign': 'vcenter',
             'font_name': 'Calibri',
             'font_size': 12,
@@ -101,6 +101,7 @@ class BankFlowWizard(models.TransientModel):
         calibri_10 = book.add_format({
             'font_name': 'Calibri',
             'font_size': 10,
+            'align': 'right',
             'num_format': '[$'+company.currency_id.symbol+']#,##0.00',
         })
         calibri_9 = book.add_format({
@@ -129,6 +130,9 @@ class BankFlowWizard(models.TransientModel):
         for col, header in enumerate(headers):
             sheet.write(row, col, header, table_header)
         row += 1
+
+        totals = defaultdict(float)
+
         for group, data in report_data.items():
             sheet.write(row, 0, data['code'], calibri_10)
             sheet.write(row, 1, group, calibri_10)
@@ -136,8 +140,16 @@ class BankFlowWizard(models.TransientModel):
             for analytic_name, amount in data.items():
                 if analytic_name != 'code':
                     sheet.write(row, col, amount, calibri_10)
+                    totals[analytic_name] += amount
                     col += 1
             row += 1
+        
+        sheet.merge_range(row, 0, row, 1, "TOTALES:", table_footer)
+        col = 2
+        for analytic_name in totals:
+            sheet.write(row, col, totals[analytic_name], table_footer)
+            col += 1
+        row += 1
 
         sheet.set_column(0,0,10)
         sheet.set_column(1,1,50)
@@ -145,7 +157,6 @@ class BankFlowWizard(models.TransientModel):
 
         book.close()
 
-        _logger.critical(xls_filename)
         self.update({
             'xls_file': base64.encodebytes(f.getvalue()),
             'name': xls_filename + ".xlsx"

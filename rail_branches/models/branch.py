@@ -10,6 +10,7 @@ class ResBranch(models.Model):
     company_id = fields.Many2one('res.company', required=True)
     telephone = fields.Char(string='Telephone No')
     address = fields.Text('Address')
+    code = fields.Char("Code")
     # sequence = fields.Integer(default=10)
 
     @api.model

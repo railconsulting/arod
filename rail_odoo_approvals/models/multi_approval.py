@@ -289,32 +289,34 @@ class MultiApproval(models.Model):
 
     # 12.0.1.3
     def send_request_mail(self):
-        requests = self.filtered(
-            lambda r: r.type_id.mail_notification and r.pic_id and
-                r.state == 'Submitted'
-        )
+        requests = self.filtered(lambda r: r.type_id.mail_notification and r.pic_id and r.state == 'Submitted')
         for req in requests:
-            if req.type_id.mail_template_id:
-                req.type_id.mail_template_id.send_mail(req.id)
-            else:
-                message = self.env['mail.message'].create({
-                    'subject': _('Request the approval for: {request_name}').format(
-                        request_name=req.display_name
-                    ),
-                    'model': req._name,
-                    'res_id': req.id,
-                    'body': self.description,
-                })
+            approver_notifications = req.type_id.mail_notification
+            approver = req.type_id.line_ids.filtered(lambda x: x.user_id.id == req.pic_id.id)
+            if not approver.mail_notification:
+                approver_notifications = False
+            if approver_notifications:
+                if req.type_id.mail_template_id:
+                    req.type_id.mail_template_id.send_mail(req.id)
+                else:
+                    message = self.env['mail.message'].create({
+                        'subject': _('Request the approval for: {request_name}').format(
+                            request_name=req.display_name
+                        ),
+                        'model': req._name,
+                        'res_id': req.id,
+                        'body': self.description,
+                    })
 
-                self.env['mail.mail'].sudo().create({
-                    'mail_message_id': message.id,
-                    'body_html': self.description,
-                    'email_to': req.pic_id.email,
-                    'email_from': req.user_id.email,
-                    'auto_delete': True,
-                    'state': 'outgoing',
+                    self.env['mail.mail'].sudo().create({
+                        'mail_message_id': message.id,
+                        'body_html': self.description,
+                        'email_to': req.pic_id.email,
+                        'email_from': req.user_id.email,
+                        'auto_delete': True,
+                        'state': 'outgoing',
 
-                })
+                    })
 
     def send_approved_mail(self):
         requests = self.filtered(
@@ -333,21 +335,23 @@ class MultiApproval(models.Model):
             req.type_id.refuse_mail_template_id.send_mail(req.id)
 
     def send_activity_notification(self):
-        requests = self.filtered(
-            lambda r: r.type_id.activity_notification and r.pic_id and
-                r.state == 'Submitted'
-        )
+        requests = self.filtered(lambda r: r.type_id.activity_notification and r.pic_id and r.state == 'Submitted')
         notify_type = self.env.ref("mail.mail_activity_data_todo", False)
         if not notify_type:
             return
         for req in requests:
-            summary = _("The request {code} need to be reviewed").format(
-                code=req.code
-            )
-            self.env['mail.activity'].create({
-                'res_id': req.id,
-                'res_model_id': self.env['ir.model']._get(req._name).id,
-                'activity_type_id': notify_type.id,
-                'summary': summary,
-                'user_id': req.pic_id.id,
-            })
+            approver_notifications = req.type_id.activity_notification
+            approver = req.type_id.line_ids.filtered(lambda x: x.user_id.id == req.pic_id.id)
+            if not approver.mail_notification:
+                approver_notifications = False
+            if approver_notifications:
+                summary = _("The request {code} need to be reviewed").format(
+                    code=req.code
+                )
+                self.env['mail.activity'].create({
+                    'res_id': req.id,
+                    'res_model_id': self.env['ir.model']._get(req._name).id,
+                    'activity_type_id': notify_type.id,
+                    'summary': summary,
+                    'user_id': req.pic_id.id,
+                })

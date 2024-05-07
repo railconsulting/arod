@@ -16,6 +16,7 @@
                                 <field name="telephone"/>
                             </group>
                             <group>
+                                <field name="code"/>
                                 <field name="address"/>
                             </group>
                         </group>
@@ -30,6 +31,7 @@
             <field name="model">res.branch</field>
             <field name="arch" type="xml">
                 <tree string="Sucursal">
+                    <field name="code"/>
                     <field name="name"/>
                     <field name="company_id"/>
                 </tree>

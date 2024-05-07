@@ -34,8 +34,6 @@ class BankFlowWizard(models.TransientModel):
             initial_balance = sum(line.debit for line in initial_lines) - sum(line.credit for line in initial_lines)
             ending_balance = sum(line.debit for line in moves.filtered(lambda x: x.account_id.id == j.default_account_id.id)) \
                             - sum(line.credit for line in moves.filtered(lambda x: x.account_id.id == j.default_account_id.id))
-            _logger.critical(str(initial_balance))
-            _logger.critical(str(ending_balance))
             report_dict[j.name]['initial'] = initial_balance
             report_dict[j.name]['ending'] = ending_balance
             for m in moves.filtered(lambda x: x.account_id.id == j.default_account_id.id):
@@ -192,7 +190,7 @@ class BankFlowWizard(models.TransientModel):
         sheet.set_column(6, 6, 25)
         sheet.set_column(7, 10, 15)
         book.close()
-        self.write({
+        self.update({
             'xls_file': base64.encodebytes(f.getvalue()),
             'name': xls_filename + ".xlsx"
         })
