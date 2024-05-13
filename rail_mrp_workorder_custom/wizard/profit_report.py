@@ -23,6 +23,7 @@ class SaleProfitReport(models.TransientModel):
     product_ids = fields.Many2many('product.product', string="Productos")
     partner_tags = fields.Many2many('res.partner.category', string="Categoria cliente")
     user_ids = fields.Many2many('res.users', string="Vendedores")
+    dev_factor = fields.Float("Factor", default=5)
 
     def get_report_data(self):
         domain = [
@@ -55,41 +56,57 @@ class SaleProfitReport(models.TransientModel):
         moves = self.env['account.move'].browse(invoice_domain)
         data = []
         for m in moves:
+            factor = self.dev_factor
             source_orders = m.line_ids.sale_line_ids.filtered_domain(line_domain).order_id
             source_stocklayers = source_orders.order_line.move_ids.filtered_domain(line_domain).stock_valuation_layer_ids
             inv_lines = m.line_ids.filtered_domain(line_domain)
             devs = source_orders.order_line.move_ids.filtered(lambda x: x.picking_code == 'incoming')
             devs = devs.filtered_domain(line_domain).stock_valuation_layer_ids
             nc = self.env['account.move'].search([('reversed_entry_id','=',m.id)])
-            nc_lines = nc.line_ids.filtered_domain(line_domain)
+            nc_lines_dev = nc.line_ids.filtered_domain(line_domain).filtered(lambda x: x.product_id.detailed_type == 'product')
+            nc_lines_bon = nc.line_ids.filtered_domain(line_domain).filtered(lambda x: x.product_id.detailed_type == 'service')
             if m.l10n_mx_edi_cfdi_uuid:
                 folio = m.l10n_mx_edi_cfdi_uuid.rsplit("-",1)[-1]
             else:
                 folio = m.name
             #amount variables
+
+            #invoice
+            invoice_cost = sum(abs(p.value) for p in source_stocklayers)
+            invoice_subtotal = sum(l.credit for l in inv_lines)
+            invoice_tax = sum(l.price_total - l.price_subtotal for l in inv_lines)
+            invoice_perc = ((invoice_subtotal - invoice_cost) / invoice_subtotal) * 100
+
+            #devs
+            cv = invoice_cost / sum(l.quantity for l in inv_lines)
+            pv = invoice_subtotal / sum(l.quantity for l in inv_lines)
+            nc_cost = cv * factor
+            nc_subtotal = pv * factor
+            nc_net_cost = invoice_cost - nc_cost
+            nc_tax = sum(l.price_total - l.price_subtotal for l in nc_lines_dev)
+            nc_net_subtotal = invoice_subtotal - nc_subtotal
+            nc_porc = ((nc_net_subtotal - nc_net_cost) / nc_net_subtotal) * 100
+
+            #bonif
+            bonus_subtotal =  sum(abs(l.debit) for l in nc_lines_bon)
+            bonus_cost = nc_net_cost
+            bonus_net_subtotal = nc_net_subtotal - bonus_subtotal
+            bonus_tax = sum(l.price_total - l.price_subtotal for l in nc_lines_bon)
+            bonus_perc = ((bonus_net_subtotal - bonus_cost) / bonus_net_subtotal) * 100
+
+            #total
+            ctrl1 = sum(l.quantity for l in inv_lines)
+            ctrl2 = sum(l.quantity for l in nc_lines_dev)
+            subtotal = invoice_subtotal - (nc_subtotal + bonus_subtotal)
+            tax = invoice_tax - (nc_tax + bonus_tax)
+            net = subtotal + tax
+            cost_subtotal = nc_net_cost
+            profit = subtotal - cost_subtotal
+            profit_perc = ((subtotal - cost_subtotal) / subtotal) * 100
+
+            #delivery
             free_delivery = sum(o.shipping_total for o in source_orders.filtered(lambda x: x.shipping_type == x.shipping_type == 'free'))
             customer_delivery = sum(o.shipping_total for o in source_orders.filtered(lambda x: x.shipping_type == x.shipping_type == 'customer'))
-            invoice_cost = sum(abs(p.value) for p in source_stocklayers)
-            invoice_total = sum(l.credit for l in inv_lines)
-            invoice_perc = 0.00 #TODO Consultar como se calcula correctamente
-
-            nc_cost = sum(abs(d.value) for d in devs)
-            nc_total = sum(l.credit for l in nc_lines)
-            nc_porc = 0.00 #TODO Consultar como se calcula correctamente
-
-            bonus_total = 0.00 #TODO Consultar como se calcula correctamente
-            bonus_perc = 0.00 #TODO Consultar como se calcula correctamente
-
-            ctrl1 = sum(l.quantity for l in inv_lines)
-            ctrl2 = sum(l.quantity for l in nc_lines)
-
-            #NOTE Creo que estos se deben calcular restando los valores de facturas - devoluciones y notas de credito
-            subtotal = sum(l.credit for l in inv_lines)
-            tax = sum(l.price_total - l.price_subtotal for l in inv_lines)
-            net = sum(l.price_total for l in inv_lines)
-            cost_subtotal = sum(abs(p.value) for p in source_stocklayers)
-            profit = subtotal - cost_subtotal
-            profit_perc = 0.00
 
             vals={
                 'folio': m.branch_id.code if m.branch_id.code else '' + "-" + folio,
@@ -100,7 +117,7 @@ class SaleProfitReport(models.TransientModel):
                 'envio_gratis': free_delivery,
                 'envio_cliente': customer_delivery,
                 'costo': invoice_cost,
-                'invoice_total': invoice_total,
+                'invoice_subtotal': invoice_subtotal,
                 'invoice_porc': invoice_perc, 
                 'costo_dev': nc_cost,
                 'nc_total': nc_total,
@@ -200,79 +217,90 @@ class SaleProfitReport(models.TransientModel):
         sheet.write(3, 1, date_to.strftime('%d/%m/%Y'), calibri_11 )
 
         row = 6
-        sheet.merge_range(row, 0, row +1, 0, "FOLIO", table_header)
-        sheet.merge_range(row, 1, row +1, 1, "COMENTARIO", table_header)
-        sheet.merge_range(row, 2, row +1, 2, "FECHA", table_header)
-        sheet.merge_range(row, 3, row +1, 3, "CLIENTE", table_header)
-        sheet.merge_range(row, 4, row +1, 4, "FACTURA / REFERENCIA", table_header)
-        sheet.merge_range(row, 5, row +1, 5, "COSTO ENVIO GRATIS", table_header)
-        sheet.merge_range(row, 6, row +1, 6, "COSTO ENVIO CLIENTE", table_header)
-        sheet.merge_range(row, 7, row +1, 7, "COSTO", table_header)
-        sheet.merge_range(row, 8, row +1, 8, "SUB-TOTAL", table_header)
-        sheet.merge_range(row, 9, row +1, 9, "%", table_header)
-        sheet.merge_range(row, 10, row, 12, "DEVOLUCIONES", table_header)
-        sheet.write(row +1, 10, "COSTO", table_header)
-        sheet.write(row +1, 11, "SUB-TOTAL", table_header)
+        sheet.merge_range(row, 0, row, 7, "DOCUMENTO", table_header)
+        sheet.write(row +1, 0, "FOLIO", table_header)
+        sheet.write(row +1, 1, "COMENTARIO", table_header)
+        sheet.write(row +1, 2, "FECHA", table_header)
+        sheet.write(row +1, 3, "CLIENTE", table_header)
+        sheet.write(row +1, 4, "FACTURA / REFERENCIA", table_header)
+        sheet.write(row +1, 5, "COSTO", table_header)
+        sheet.write(row +1, 6, "SUB-TOTAL", table_header)
+        sheet.write(row +1, 7, "%", table_header)
+        sheet.merge_range(row, 8, row, 10, "DEVOLUCIONES", table_header)
+        sheet.write(row +1, 8, "COSTO", table_header)
+        sheet.write(row +1, 9, "SUB-TOTAL", table_header)
+        sheet.write(row +1, 10, "COSTO NETO", table_header)
+        sheet.write(row +1, 11, "SUB-NETO", table_header)
         sheet.write(row +1, 12, "%", table_header)
-        sheet.merge_range(row, 13, row, 14, "BONIFICACIONES", table_header)
+        sheet.merge_range(row, 13, row, 16, "BONIFICACIONES", table_header)
         sheet.write(row +1, 13, "SUB-TOTAL", table_header)
-        sheet.write(row +1, 14, "%", table_header)
-        sheet.merge_range(row, 15, row, 22, "TOTAL", table_header)
-        sheet.write(row +1, 15, "CTRL-1", table_header)
-        sheet.write(row +1, 16, "CTRL-2", table_header)
-        sheet.write(row +1, 17, "SUB-TOTAL", table_header)
-        sheet.write(row +1, 18, "IMPUESTO", table_header)
-        sheet.write(row +1, 19, "NETO", table_header)
-        sheet.write(row +1, 20, "COSTO", table_header)
-        sheet.write(row +1, 21, "U. BRUTA", table_header)
-        sheet.write(row +1, 22, "%", table_header)
+        sheet.write(row +1, 14, "COSTO", table_header)
+        sheet.write(row +1, 15, "SUBTOTAL", table_header)
+        sheet.write(row +1, 16, "%", table_header)
+        sheet.merge_range(row, 17, row, 24, "TOTAL", table_header)
+        sheet.write(row +1, 17, "CTRL-1", table_header)
+        sheet.write(row +1, 18, "CTRL-2", table_header)
+        sheet.write(row +1, 19, "SUB-TOTAL", table_header)
+        sheet.write(row +1, 20, "IMPUESTO", table_header)
+        sheet.write(row +1, 21, "NETO", table_header)
+        sheet.write(row +1, 22, "COSTO", table_header)
+        sheet.write(row +1, 23, "U. BRUTA", table_header)
+        sheet.write(row +1, 24, "%", table_header)
+        sheet.merge_range(row, 25, row, 28, "FLETES", table_header)
+        sheet.write(row +1, 25, "FLETE", table_header)
+        sheet.write(row +1, 26, "COSTO CTRL", table_header)
+        sheet.write(row +1, 27, "SUB-TOTAL", table_header)
+        sheet.write(row +1, 28, "%", table_header)
 
         data = self.get_report_data()
         row += 2
         tot5=tot6=tot7=tot8=tot9=tot10=tot11=tot12=tot13 = 0
-        tot14=tot15=tot16=tot17=tot18=tot19=tot20=tot21=tot22 =0
+        tot14=tot15=tot16=tot17=tot18=tot19=tot20=tot21=tot22=tot23=tot24 =0
         for d in data:
             sheet.write(row, 0, d['folio'], calibri_10)
             sheet.write(row, 1, d['comentario'], calibri_10)
             sheet.write(row, 2, d['fecha'], calibri_10)
             sheet.write(row, 3, d['cliente'], calibri_10)
             sheet.write(row, 4, d['factura'], calibri_10)
-            sheet.write(row, 5, d['envio_gratis'], calibri_10)
-            sheet.write(row, 6, d['envio_cliente'], calibri_10)
-            sheet.write(row, 7, d['costo'], calibri_10)
-            sheet.write(row, 8, d['invoice_total'], calibri_10)
-            sheet.write(row, 9, d['invoice_porc'], calibri_10)
-            sheet.write(row, 10, d['costo_dev'], calibri_10)
-            sheet.write(row, 11, d['nc_total'], calibri_10)
-            sheet.write(row, 12, d['nc_porc'], calibri_10)
-            sheet.write(row, 13, d['bonif_total'], calibri_10)
-            sheet.write(row, 14, d['bonif_porc'], calibri_10)
-            sheet.write(row, 15, d['ctrl1'], calibri_10)
-            sheet.write(row, 16, d['ctrl2'], calibri_10)
-            sheet.write(row, 17, d['subtotal'], calibri_10)
-            sheet.write(row, 18, d['impuesto'], calibri_10)
-            sheet.write(row, 19, d['neto'], calibri_10)
-            sheet.write(row, 20, d['subtotal_costo'], calibri_10)
-            sheet.write(row, 21, d['utilidad_bruta'], calibri_10)
-            sheet.write(row, 22, d['utilidad_porc'], calibri_10)
-            tot5 += d['envio_gratis']
-            tot6 += d['envio_cliente']
-            tot7 += d['costo']
-            tot8 += d['invoice_total']
-            tot9 += d['invoice_porc']
-            tot10 += d['costo_dev']
-            tot11 += d['nc_total']
-            tot12 += d['nc_porc']
-            tot13 += d['bonif_total']
-            tot14 += d['bonif_porc']
-            tot15 += d['ctrl1']
-            tot16 += d['ctrl2']
-            tot17 += d['subtotal']
-            tot18 += d['impuesto']
-            tot19 += d['neto']
-            tot20 += d['subtotal_costo']
-            tot21 += d['utilidad_bruta']
-            tot22 += d['utilidad_porc']
+            sheet.write(row, 5, d['costo'], calibri_10)
+            sheet.write(row, 6, d['invoice_subtotal'], calibri_10)
+            sheet.write(row, 7, d['invoice_porc'], calibri_10)
+            sheet.write(row, 8, d['costo_dev'], calibri_10)
+            sheet.write(row, 9, d['nc_total'], calibri_10)
+            sheet.write(row, 10, d['nc_porc'], calibri_10)
+            sheet.write(row, 11, d['bonif_total'], calibri_10)
+            sheet.write(row, 12, d['bonif_porc'], calibri_10)
+            sheet.write(row, 13, d['ctrl1'], calibri_10)
+            sheet.write(row, 14, d['ctrl2'], calibri_10)
+            sheet.write(row, 15, d['subtotal'], calibri_10)
+            sheet.write(row, 16, d['impuesto'], calibri_10)
+            sheet.write(row, 17, d['neto'], calibri_10)
+            sheet.write(row, 18, d['subtotal_costo'], calibri_10)
+            sheet.write(row, 19, d['utilidad_bruta'], calibri_10)
+            sheet.write(row, 20, d['utilidad_porc'], calibri_10)
+            sheet.write(row, 21, d['envio_gratis'] + d['envio_cliente'], calibri_10)
+            #sheet.write(row, 22, d['envio_gratis'] + d['envio_cliente'] + , calibri_10)
+            sheet.write(row, 23, d['subtotal'], calibri_10)
+            #sheet.write(row, 24, ((d['subtotal'] / )))
+            tot5 += d['costo']
+            tot6 += d['invoice_subtotal']
+            tot7 += d['invoice_porc']
+            tot8 += d['costo_dev']
+            tot9 += d['nc_total']
+            tot10 += d['nc_porc']
+            tot11 += d['bonif_total']
+            tot12 += d['bonif_porc']
+            tot13 += d['ctrl1']
+            tot14 += d['ctrl2']
+            tot15 += d['subtotal']
+            tot16 += d['impuesto']
+            tot17 += d['neto']
+            tot18 += d['subtotal_costo']
+            tot19 += d['utilidad_bruta']
+            tot20 += d['utilidad_porc']
+            tot21 += d['envio_gratis']
+            tot22 += d['envio_cliente']
+            tot23 += d['subtotal']
 
             row += 1
 
@@ -295,13 +323,15 @@ class SaleProfitReport(models.TransientModel):
         sheet.write(row, 20, tot20, table_footer)
         sheet.write(row, 21, tot21, table_footer)
         sheet.write(row, 22, tot22, table_footer)
+        sheet.write(row, 23, tot23, table_footer)
+
 
         sheet.set_column(0,0,20)
         sheet.set_column(1,1,25)
         sheet.set_column(2,2,12)
         sheet.set_column(3,3,50)
         sheet.set_column(4,4,25)
-        sheet.set_column(5,22,15)
+        sheet.set_column(5,24,15)
 
 
 

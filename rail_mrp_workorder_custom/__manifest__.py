@@ -1,7 +1,7 @@
 {
     "name": "Personalizaciones para AROD",
-    "summary": """MRP Workorder Custom Screen""",
-    "description": """ MRP Workorder Custom Screen""",
+    "summary": """Personalizaciones para AROD""",
+    "description": """Personalizaciones para AROD""",
     "version": "16.0.3",
     "depends": ["account","mrp","mrp_workorder_hr","delivery"],
     "application": True,

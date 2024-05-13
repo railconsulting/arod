@@ -15,6 +15,7 @@
                         <field name="company_id" readonly="1"/>
                         <field name="currency_ids" widget="many2many_tags"/>
                         <field name="branch_ids" widget="many2many_tags"/>
+                        <field name="dev_factor"/>
                     </group>
                 </group>
                 <group string="Productos">
