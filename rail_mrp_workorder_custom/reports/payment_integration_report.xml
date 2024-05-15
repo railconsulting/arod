@@ -34,10 +34,10 @@
                                 <t t-set="move_name" t-value=""/>
                                 <tr t-att-class="'bg-200 fw-bold o_line_section' if line['display_type'] == 'line_section' else 'fst-italic o_line_note' if line['display_type'] == 'line_note' else ''">
                                     <t t-if="not line['display_type']">
-                                        <td><span t-esc="line['name']"/></td>
-                                        <td><span t-esc="line['account_id']"/></td>
-                                        <td><span t-esc="line['debit']" t-options="{&quot;widget&quot;: &quot;float&quot;, &quot;precision&quot;: 2}"/></td>
-                                        <td><span t-esc="line['credit']" t-options="{&quot;widget&quot;: &quot;float&quot;, &quot;precision&quot;: 2}"/></td>
+                                        <td style="font-size: 10px; text-align: left;"><span t-esc="line['name']"/></td>
+                                        <td style="font-size: 10px; text-align: left;"><span t-esc="line['account_id']"/></td>
+                                        <td style="font-size: 10px; text-align: right;"><span t-esc="line['debit']" t-options="{&quot;widget&quot;: &quot;float&quot;, &quot;precision&quot;: 2}"/></td>
+                                        <td style="font-size: 10px; text-align: right;"><span t-esc="line['credit']" t-options="{&quot;widget&quot;: &quot;float&quot;, &quot;precision&quot;: 2}"/></td>
                                     </t>
                                     <t t-elif="line['display_type'] == 'line_section'">
                                         <t t-set="move_name" t-value="line['name']"/>
@@ -51,13 +51,13 @@
                                 </tr>
                                 <t t-if="current_section and (line_last or lines[line_index+1]['display_type'] == 'line_section')">
                                     <tr class="is-subtotal text-end">
-                                        <td name="td_section_subtotal" colspan="2">
+                                        <td name="td_section_subtotal" colspan="2"  style="text-align: center;">
                                             <strong>TOTAL <span t-esc="move_name"/></strong>
                                         </td>
-                                        <td>
-                                          <span t-esc="subtotal_debit" t-options="{&quot;widget&quot;: &quot;float&quot;, &quot;precision&quot;: 2}"/>
+                                        <td  style="text-align: right;">
+                                          <span t-esc="subtotal_debit" t-options="{&quot;widget&quot;: &quot;float&quot;, &quot;precision&quot;: 2}" />
                                         </td>
-                                        <td>
+                                        <td  style="text-align: right;">
                                           <span t-esc="subtotal_credit" t-options="{&quot;widget&quot;: &quot;float&quot;, &quot;precision&quot;: 2}"/>  
                                         </td>
                                     </tr>

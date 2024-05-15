@@ -16,10 +16,14 @@ class Accountmove(models.Model):
         '''
         edi_document_vals_list = []
         for payment in self:
+            _logger.critical("payment._get_reconciled_invoices().journal_id.edi_format_ids" + str(payment._get_reconciled_invoices().journal_id.edi_format_ids))
             edi_formats = payment._get_reconciled_invoices().journal_id.edi_format_ids + payment.edi_document_ids.edi_format_id
             edi_formats = self.env['account.edi.format'].browse(edi_formats.ids) # Avoid duplicates
+            _logger.critical("EDI_FORMATS:" + str(edi_formats))
             for edi_format in edi_formats:
+                _logger.critical("EDI_FORMAT:" + str(edi_format.name))
                 existing_edi_document = payment.edi_document_ids.filtered(lambda x: x.edi_format_id == edi_format)
+                _logger.critical("EXISTING_EDI_DOCUMENT: "+ str(existing_edi_document))
                 move_applicability = edi_format._get_move_applicability(payment)
                 if move_applicability:
                     if existing_edi_document:
@@ -40,7 +44,6 @@ class Accountmove(models.Model):
                         'error': False,
                         'blocking_level': False,
                     })
-        _logger.critical(str(edi_document_vals_list))
         self.env['account.edi.document'].create(edi_document_vals_list)
         self.edi_document_ids._process_documents_no_web_services()
 

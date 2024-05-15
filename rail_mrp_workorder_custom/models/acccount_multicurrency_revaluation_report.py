@@ -19,12 +19,14 @@ class MulticurrencyRevaluationReportCustomHandler(models.AbstractModel):
         if len(active_currencies) < 2:
             raise UserError(_("You need to activate more than one currency to access this report."))
         rates = active_currencies._get_rates(self.env.company, options.get('date').get('date_to'))
+
+
         # Normalize the rates to the company's currency
         company_rate = rates[self.env.company.currency_id.id]
         for key in rates.keys():
             rates[key] /= company_rate
 
-        
+        currency_rate_obj = self.env['res.currency.rate']
         options['currency_rates'] = {
             str(currency_id.id): {
                 'currency_id': currency_id.id,
@@ -34,10 +36,11 @@ class MulticurrencyRevaluationReportCustomHandler(models.AbstractModel):
                          if not (previous_options or {}).get('currency_rates', {}).get(str(currency_id.id), {}).get('rate') else
                          float(previous_options['currency_rates'][str(currency_id.id)]['rate'])),
                 'inverse_rate': 1 / (rates[currency_id.id]
-                         if not (previous_options or {}).get('currency_rates', {}).get(str(currency_id.id), {}).get('inverse_rate') else
-                         float(previous_options['currency_rates'][str(currency_id.id)]['inverse_rate'])),
+                         if not (previous_options or {}).get('currency_rates', {}).get(str(currency_id.id), {}).get('rate') else
+                         float(previous_options['currency_rates'][str(currency_id.id)]['rate'])),
             } for currency_id in active_currencies
         }
+
 
         options['company_currency'] = options['currency_rates'].pop(str(self.env.company.currency_id.id))
 
@@ -68,10 +71,15 @@ class MulticurrencyRevaluationReportCustomHandler(models.AbstractModel):
                 line['name'] = '{for_cur} (1 {for_cur} = {inverse_rate:.6} {comp_cur})'.format(
                     for_cur=line['name'],
                     comp_cur=self.env.company.currency_id.display_name,
-                    rate=float(options['currency_rates'][str(res_id)]['rate']),
+                    #rate=float(options['currency_rates'][str(res_id)]['rate']),
+                    rate = float(options['currency_rates'][str(res_id)]['inverse_rate']),
                     inverse_rate = float(options['currency_rates'][str(res_id)]['inverse_rate']),
                 )
+                _logger.critical("RATE: "+ str(float(options['currency_rates'][str(res_id)]['rate'])))
+                _logger.critical("INVERSE_RATE: " + str(float(options['currency_rates'][str(res_id)]['inverse_rate'])) )
 
             rslt.append(line)
 
         return rslt
+    
+    

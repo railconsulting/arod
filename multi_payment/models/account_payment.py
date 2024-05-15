@@ -17,11 +17,11 @@ class AccountPaymentInvoices(models.Model):
     amount_total = fields.Monetary(related="invoice_id.amount_total")
     residual = fields.Monetary(related="invoice_id.amount_residual")
 
-    @api.constrains('reconcile_amount')
+    """ @api.constrains('reconcile_amount')
     def _check_reconcile_amount(self):
         for rec in self:
             if rec.residual < rec.reconcile_amount or rec.reconcile_amount <= 0.0:
-                raise UserError(_("Enter the Due amount correctly"))
+                raise UserError(_("ingresa el monto correctamente \n"+ "Residual: " + str(rec.residual) + "\nReconciliar: " + str(rec.reconcile_amount))) """
 
 
 

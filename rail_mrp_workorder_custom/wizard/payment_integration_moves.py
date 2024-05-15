@@ -107,13 +107,14 @@ class PaymentIntegrationMoves(models.TransientModel):
                     'account_id': line.account_id.id
                 })) 
                 seq +=1 
+            subtotal_string =  "TOTAL {:<150}{:>15.2f}                  {:.2f}".format(m.display_name, total_debit, total_credit)
+            _logger.critical(subtotal_string)
             move_lines.append(Command.create({
                 'move_id':m.id,
                 'is_subtotal': True,
                 'sequence': seq,
                 'display_type': 'line_section',
-                'name': "TOTAL " + m.display_name + "                                                                                                                                 "\
-                        + '{:.2f}'.format(total_debit) + "                  " + '{:.2f}'.format(total_credit),
+                'name': subtotal_string,
             }))
             seq += 1
         rec['move_lines'] = move_lines
