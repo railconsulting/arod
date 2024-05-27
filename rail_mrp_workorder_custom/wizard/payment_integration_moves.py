@@ -81,8 +81,8 @@ class PaymentIntegrationMoves(models.TransientModel):
         exchange_entries += source_lines.matched_credit_ids.filtered(lambda x: x.exchange_move_id)
         for entry in exchange_entries:
             exchange_moves.append(entry.exchange_move_id.id)
-        moves = self.env['account.move'].search([('id','in',exchange_moves)])
-
+        moves = payment_id.move_id
+        moves += self.env['account.move'].search([('id','in',exchange_moves)])
         moves += self.env['account.move'].search([('tax_cash_basis_origin_move_id','in', records.ids),('state','=','posted')])
         seq = total_debit  = total_credit = 0
         for m in moves:
@@ -107,8 +107,19 @@ class PaymentIntegrationMoves(models.TransientModel):
                     'account_id': line.account_id.id
                 })) 
                 seq +=1 
-            subtotal_string =  "TOTAL {:<150}{:>15.2f}                  {:.2f}".format(m.display_name, total_debit, total_credit)
-            _logger.critical(subtotal_string)
+            str_display_name = "{:<160}".format(m.display_name)
+            str_total_debit = "{:.2f}".format(total_debit)
+            str_total_credit = "{:.2f}".format(total_credit)
+            total_length = 20
+            padding_debit = total_length - len(str_total_debit)
+            padding_credit = total_length - len(str_total_credit)
+            spaces_between = 5 - (padding_debit + padding_credit)
+            subtotal_string = "TOTAL {}{}{}{}".format(
+                str_display_name,
+                str_total_debit.rjust(padding_debit + len(str_total_debit)),
+                ' ' * max(spaces_between, 0),
+                str_total_credit.rjust(padding_credit + len(str_total_credit))
+            )
             move_lines.append(Command.create({
                 'move_id':m.id,
                 'is_subtotal': True,
