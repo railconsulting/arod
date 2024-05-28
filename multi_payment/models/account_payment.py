@@ -1,6 +1,8 @@
 from odoo import _, api, fields, models
 from odoo.exceptions import UserError, ValidationError
+import logging
 
+_logger = logging.getLogger(__name__)
 
 class AccountPaymentInvoices(models.Model):
     _name = 'account.payment.invoice'
@@ -17,11 +19,11 @@ class AccountPaymentInvoices(models.Model):
     amount_total = fields.Monetary(related="invoice_id.amount_total")
     residual = fields.Monetary(related="invoice_id.amount_residual")
 
-    """ @api.constrains('reconcile_amount')
+    @api.constrains('reconcile_amount')
     def _check_reconcile_amount(self):
         for rec in self:
             if rec.residual < rec.reconcile_amount or rec.reconcile_amount <= 0.0:
-                raise UserError(_("ingresa el monto correctamente \n"+ "Residual: " + str(rec.residual) + "\nReconciliar: " + str(rec.reconcile_amount))) """
+                raise UserError(_("Ingresa el monto correctamente \n"+ rec.invoice_id.name + "\nSaldo: " + str(rec.residual) + "\nPago: " + str(rec.reconcile_amount))) 
 
 
 
@@ -105,20 +107,18 @@ class AccountPayment(models.Model):
             self.payment_invoice_ids = payment_invoice_values
 
     def action_post(self):
-        super(AccountPayment, self).action_post()
+        res = super(AccountPayment, self).action_post()
         for payment in self:
             reconcile_amount = sum(payment.mapped('payment_invoice_ids').mapped('reconcile_amount'))
             if payment.batch_reconcile:
                 if payment.amount == reconcile_amount:
-                    for line_id in payment.payment_invoice_ids:
-                        if not line_id.reconcile_amount:
-                            continue
-                        if line_id.amount_total <= line_id.reconcile_amount:
+                    row = 1
+                    for line_id in payment.payment_invoice_ids.filtered(lambda x: x.reconcile_amount > 0):
+                        if line_id.residual <= line_id.reconcile_amount:
                             self.ensure_one()
                             if payment.payment_type == 'inbound':
                                 lines = payment.move_id.line_ids.filtered(lambda line: line.credit > 0)
-                                lines += line_id.invoice_id.line_ids.filtered(
-                                    lambda line: line.account_id == lines[0].account_id and not line.reconciled)
+                                lines += line_id.invoice_id.line_ids.filtered(lambda line: line.account_id == lines[0].account_id and not line.reconciled)
                                 lines.reconcile()
                             elif payment.payment_type == 'outbound':
                                 lines = payment.move_id.line_ids.filtered(lambda line: line.debit > 0)
@@ -131,13 +131,15 @@ class AccountPayment(models.Model):
                                 lines = payment.move_id.line_ids.filtered(lambda line: line.credit > 0)
                                 lines += line_id.invoice_id.line_ids.filtered(
                                     lambda line: line.account_id == lines[0].account_id and not line.reconciled)
+                                _logger.critical("ROW: " + str(row) + " ELSE: " + str(lines))
                                 lines.with_context(amount=line_id.reconcile_amount).reconcile()
+                                row += 1
                             elif payment.payment_type == 'outbound':
                                 lines = payment.move_id.line_ids.filtered(lambda line: line.debit > 0)
                                 lines += line_id.invoice_id.line_ids.filtered(
                                     lambda line: line.account_id == lines[0].account_id and not line.reconciled)
                                 lines.with_context(amount=line_id.reconcile_amount).reconcile()
                 else:
-                    raise UserError('El monto a reconciliar no coincide con el monto del pago')
+                    raise UserError('El monto total a reconciliar no coincide con el monto del pago')
 
-        return True
+        return res

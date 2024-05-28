@@ -2,7 +2,6 @@
 <odoo>
 
     <data>
-
         <record id="account_payment_form_inherited" model="ir.ui.view">
             <field name="name">account.payment.form.inherited</field>
             <field name="model">account.payment</field>

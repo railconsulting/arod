@@ -5,47 +5,6 @@ import logging
 
 _logger = logging.getLogger(__name__)
 
-class Accountmove(models.Model):
-    _inherit = 'account.move'
-
-    def _update_payments_edi_documents(self):
-        ''' Update the edi documents linked to the current journal entries. These journal entries must be linked to an
-        account.payment of an account.bank.statement.line. This additional method is needed because the payment flow is
-        not the same as the invoice one. Indeed, the edi documents must be updated when the reconciliation with some
-        invoices is changing.
-        '''
-        edi_document_vals_list = []
-        for payment in self:
-            _logger.critical("payment._get_reconciled_invoices().journal_id.edi_format_ids" + str(payment._get_reconciled_invoices().journal_id.edi_format_ids))
-            edi_formats = payment._get_reconciled_invoices().journal_id.edi_format_ids + payment.edi_document_ids.edi_format_id
-            edi_formats = self.env['account.edi.format'].browse(edi_formats.ids) # Avoid duplicates
-            _logger.critical("EDI_FORMATS:" + str(edi_formats))
-            for edi_format in edi_formats:
-                _logger.critical("EDI_FORMAT:" + str(edi_format.name))
-                existing_edi_document = payment.edi_document_ids.filtered(lambda x: x.edi_format_id == edi_format)
-                _logger.critical("EXISTING_EDI_DOCUMENT: "+ str(existing_edi_document))
-                move_applicability = edi_format._get_move_applicability(payment)
-                if move_applicability:
-                    if existing_edi_document:
-                        existing_edi_document.write({
-                            'state': 'to_send',
-                            'error': False,
-                            'blocking_level': False,
-                        })
-                    else:
-                        edi_document_vals_list.append({
-                            'edi_format_id': edi_format.id,
-                            'move_id': payment.id,
-                            'state': 'to_send',
-                        })
-                elif existing_edi_document:
-                    existing_edi_document.write({
-                        'state': False,
-                        'error': False,
-                        'blocking_level': False,
-                    })
-        self.env['account.edi.document'].create(edi_document_vals_list)
-        self.edi_document_ids._process_documents_no_web_services()
 
 class AccountMoveLine(models.Model):
     _inherit = 'account.move.line'
@@ -187,8 +146,8 @@ class AccountMoveLine(models.Model):
         def is_line_reconciled(line):
             # Check if the journal item passed as parameter is now fully reconciled.
             return line.reconciled \
-                   or line.currency_id.is_zero(line.amount_residual_currency) \
-                   or line.company_currency_id.is_zero(line.amount_residual)
+                or line.currency_id.is_zero(line.amount_residual_currency) \
+                or line.company_currency_id.is_zero(line.amount_residual)
 
         if all(is_line_reconciled(line) for line in involved_lines):
 
@@ -235,7 +194,7 @@ class AccountMoveLine(models.Model):
 
                         # Track newly created partials.
                         exchange_diff_partials = exchange_move_lines.matched_debit_ids \
-                                                 + exchange_move_lines.matched_credit_ids
+                                                + exchange_move_lines.matched_credit_ids
                         involved_partials += exchange_diff_partials
                         results['exchange_partials'] += exchange_diff_partials
 
