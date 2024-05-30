@@ -288,7 +288,7 @@ class SaleProfitReport(models.TransientModel):
             sheet.write(row, 18, d['18'], calibri_10)
             sheet.write(row, 19, d['19'], calibri_10)
             sheet.write(row, 20, d['20'], calibri_10)
-            sheet.write(row, 21, d['21'] + d['envio_cliente'], calibri_10)
+            sheet.write(row, 21, d['21'], calibri_10)
             sheet.write(row, 22, d['22'] , calibri_10)
             sheet.write(row, 23, d['23'], calibri_10)
             sheet.write(row, 24, d['24'], calibri_10)
