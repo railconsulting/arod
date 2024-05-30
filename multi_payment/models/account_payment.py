@@ -22,7 +22,7 @@ class AccountPaymentInvoices(models.Model):
     @api.constrains('reconcile_amount')
     def _check_reconcile_amount(self):
         for rec in self:
-            if rec.residual < rec.reconcile_amount or rec.reconcile_amount <= 0.0:
+            if rec.residual < rec.reconcile_amount or rec.reconcile_amount < 0.0:
                 raise UserError(_("Ingresa el monto correctamente \n"+ rec.invoice_id.name + "\nSaldo: " + str(rec.residual) + "\nPago: " + str(rec.reconcile_amount))) 
 
 
