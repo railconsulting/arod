@@ -107,7 +107,10 @@ class SaleProfitReport(models.TransientModel):
             #delivery
             free_delivery = sum(o.shipping_total for o in source_orders.filtered(lambda x: x.shipping_type == x.shipping_type == 'free'))
             customer_delivery = sum(o.shipping_total for o in source_orders.filtered(lambda x: x.shipping_type == x.shipping_type == 'customer'))
-            delivery_perc = ((bonus_cost / ((free_delivery + customer_delivery) - bonus_cost)) / bonus_cost) * 100
+            if bonus_cost > 0 and free_delivery > 0 and customer_delivery > 0:
+                delivery_perc = ((bonus_cost / ((free_delivery + customer_delivery) - bonus_cost)) / bonus_cost) * 100
+            else:
+                delivery_perc = 0
 
             vals={
                 '0': m.branch_id.code if m.branch_id.code else '' + "-" + folio,
