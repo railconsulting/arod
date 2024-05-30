@@ -84,8 +84,9 @@ class PaymentIntegrationMoves(models.TransientModel):
         moves = payment_id.move_id
         moves += self.env['account.move'].search([('id','in',exchange_moves)])
         moves += self.env['account.move'].search([('tax_cash_basis_origin_move_id','in', records.ids),('state','=','posted')])
-        seq = total_debit  = total_credit = 0
+        seq = 0
         for m in moves:
+            total_debit  = total_credit = 0
             seq += 1
             move_lines.append(Command.create({
                 'move_id':m.id,
