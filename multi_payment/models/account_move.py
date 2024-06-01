@@ -54,7 +54,7 @@ class AccountMoveLine(models.Model):
                 raise UserError(_("Entries are not from the same account: %s != %s")
                                 % (account.display_name, line.account_id.display_name))
             
-            if line.move_type == 'out_refund':
+            if line.move_type in ['out_refund','in_refund']:
                 nc = True
                 
 
