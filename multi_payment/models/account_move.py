@@ -34,6 +34,7 @@ class AccountMoveLine(models.Model):
         # ==== Check the lines can be reconciled together ====
         company = None
         account = None
+        nc = False
         for line in self:
             if line.reconciled:
                 raise UserError(_("You are trying to reconcile some entries that are already reconciled."))
@@ -52,6 +53,10 @@ class AccountMoveLine(models.Model):
             elif line.account_id != account:
                 raise UserError(_("Entries are not from the same account: %s != %s")
                                 % (account.display_name, line.account_id.display_name))
+            
+            if line.move_type == 'out_refund':
+                nc = True
+                
 
         sorted_lines = self.sorted(key=lambda line: (line.date_maturity or line.date, line.currency_id, line.amount_currency))
 
@@ -136,7 +141,7 @@ class AccountMoveLine(models.Model):
 
         # ==== Create entries for cash basis taxes ====
 
-        is_cash_basis_needed = account.company_id.tax_exigibility and account.account_type in ('asset_receivable', 'liability_payable')
+        is_cash_basis_needed = account.company_id.tax_exigibility and account.account_type in ('asset_receivable', 'liability_payable') and not nc
         if is_cash_basis_needed and not self._context.get('move_reverse_cancel'):
             tax_cash_basis_moves = partials._create_tax_cash_basis_moves()
             results['tax_cash_basis_moves'] = tax_cash_basis_moves
