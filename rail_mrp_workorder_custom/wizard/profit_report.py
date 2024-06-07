@@ -23,7 +23,8 @@ class SaleProfitReport(models.TransientModel):
     product_ids = fields.Many2many('product.product', string="Productos")
     partner_tags = fields.Many2many('res.partner.category', string="Categoria cliente")
     user_ids = fields.Many2many('res.users', string="Vendedores")
-    dev_factor = fields.Float("Factor", default=5)
+    partner_ids = fields.Many2many('res.partner', string="Clientes")
+    move_ids = fields.Many2many('account.move', domain=[('move_type','in', ['out_invoice','out_refund'])])
 
     def get_report_data(self):
         domain = [
@@ -31,7 +32,7 @@ class SaleProfitReport(models.TransientModel):
             ('date','<=',self.date_to),
             ('move_type','=', 'out_invoice',)
         ]
-        line_domain = []
+        line_domain = [('display_type','=','product')]
         if self.branch_ids:
             domain.append(('move_id.branch_id','in', self.branch_ids.ids))
         if self.currency_ids:
@@ -56,7 +57,6 @@ class SaleProfitReport(models.TransientModel):
         moves = self.env['account.move'].browse(invoice_domain)
         data = []
         for m in moves:
-            factor = self.dev_factor
             source_orders = m.line_ids.sale_line_ids.filtered_domain(line_domain).order_id
             source_stocklayers = source_orders.order_line.move_ids.filtered_domain(line_domain).stock_valuation_layer_ids
             inv_lines = m.line_ids.filtered_domain(line_domain)
@@ -70,6 +70,8 @@ class SaleProfitReport(models.TransientModel):
             else:
                 folio = m.name
             #amount variables
+            ctrl1 = sum(l.quantity for l in inv_lines)
+            ctrl2 = sum(l.quantity for l in nc_lines_dev)
 
             #invoice
             invoice_cost = sum(abs(p.value) for p in source_stocklayers)
@@ -80,8 +82,8 @@ class SaleProfitReport(models.TransientModel):
             #devs
             cv = invoice_cost / sum(l.quantity for l in inv_lines)
             pv = invoice_subtotal / sum(l.quantity for l in inv_lines)
-            nc_cost = cv * factor
-            nc_subtotal = pv * factor
+            nc_cost = cv * ctrl2
+            nc_subtotal = pv * ctrl2
             nc_net_cost = invoice_cost - nc_cost
             nc_tax = sum(l.price_total - l.price_subtotal for l in nc_lines_dev)
             nc_net_subtotal = invoice_subtotal - nc_subtotal
@@ -95,8 +97,6 @@ class SaleProfitReport(models.TransientModel):
             bonus_perc = ((bonus_net_subtotal - bonus_cost) / bonus_net_subtotal)
 
             #total
-            ctrl1 = sum(l.quantity for l in inv_lines)
-            ctrl2 = sum(l.quantity for l in nc_lines_dev)
             subtotal = invoice_subtotal - (nc_subtotal + bonus_subtotal)
             tax = invoice_tax - (nc_tax + bonus_tax)
             net = subtotal + tax
@@ -272,7 +272,7 @@ class SaleProfitReport(models.TransientModel):
         sheet.write(row +1, 5, "COSTO", table_header)
         sheet.write(row +1, 6, "SUB-TOTAL", table_header)
         sheet.write(row +1, 7, "%", table_header)
-        sheet.merge_range(row, 8, row, 10, "DEVOLUCIONES", table_header)
+        sheet.merge_range(row, 8, row, 12, "DEVOLUCIONES", table_header)
         sheet.write(row +1, 8, "COSTO", table_header)
         sheet.write(row +1, 9, "SUB-TOTAL", table_header)
         sheet.write(row +1, 10, "COSTO NETO", table_header)
