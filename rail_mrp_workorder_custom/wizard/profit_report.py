@@ -97,7 +97,10 @@ class SaleProfitReport(models.TransientModel):
             bonus_cost = nc_net_cost
             bonus_net_subtotal = nc_net_subtotal - bonus_subtotal
             bonus_tax = sum(l.price_total - l.price_subtotal for l in nc_lines_bon)
-            bonus_perc = ((bonus_net_subtotal - bonus_cost) / bonus_net_subtotal)
+            if bonus_net_subtotal > 0:
+                bonus_perc = ((bonus_net_subtotal - bonus_cost) / bonus_net_subtotal)
+            else:
+                bonus_perc = 0
 
             #total
             subtotal = invoice_subtotal - (nc_subtotal + bonus_subtotal)
@@ -105,7 +108,10 @@ class SaleProfitReport(models.TransientModel):
             net = subtotal + tax
             cost_subtotal = nc_net_cost
             profit = subtotal - cost_subtotal
-            profit_perc = ((subtotal - cost_subtotal) / subtotal)
+            if subtotal > 0:
+                profit_perc = ((subtotal - cost_subtotal) / subtotal)
+            else:
+                profit_perc = 0
 
             #delivery
             free_delivery = sum(o.shipping_total for o in source_orders.filtered(lambda x: x.shipping_type == x.shipping_type == 'free'))
