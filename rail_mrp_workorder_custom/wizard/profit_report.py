@@ -87,7 +87,10 @@ class SaleProfitReport(models.TransientModel):
             nc_net_cost = invoice_cost - nc_cost
             nc_tax = sum(l.price_total - l.price_subtotal for l in nc_lines_dev)
             nc_net_subtotal = invoice_subtotal - nc_subtotal
-            nc_porc = ((nc_net_subtotal - nc_net_cost) / nc_net_subtotal)
+            if nc_net_subtotal > 0:
+                nc_porc = ((nc_net_subtotal - nc_net_cost) / nc_net_subtotal)
+            else:
+                nc_porc = 0
 
             #bonif
             bonus_subtotal =  sum(abs(l.debit) for l in nc_lines_bon)
