@@ -32,7 +32,7 @@ class SaleProfitReport(models.TransientModel):
             ('date','<=',self.date_to),
             ('move_type','=', 'out_invoice',)
         ]
-        line_domain = [('display_type','=','product')]
+        line_domain = []
         if self.branch_ids:
             domain.append(('move_id.branch_id','in', self.branch_ids.ids))
         if self.currency_ids:
@@ -48,6 +48,8 @@ class SaleProfitReport(models.TransientModel):
             domain.append(('product_id','in',self.product_ids.ids))
             line_domain.append(('product_id','in',self.product_ids.ids))
 
+        aml_domain = line_domain
+        aml_domain.append(('display_type','=','product'))
 
         lines = self.env['account.move.line'].search(domain)
         invoice_domain = []
@@ -59,7 +61,7 @@ class SaleProfitReport(models.TransientModel):
         for m in moves:
             source_orders = m.line_ids.sale_line_ids.filtered_domain(line_domain).order_id
             source_stocklayers = source_orders.order_line.move_ids.filtered_domain(line_domain).stock_valuation_layer_ids
-            inv_lines = m.line_ids.filtered_domain(line_domain)
+            inv_lines = m.line_ids.filtered_domain(aml_domain)
             devs = source_orders.order_line.move_ids.filtered(lambda x: x.picking_code == 'incoming')
             devs = devs.filtered_domain(line_domain).stock_valuation_layer_ids
             nc = self.env['account.move'].search([('reversed_entry_id','=',m.id)])
@@ -161,7 +163,7 @@ class SaleProfitReport(models.TransientModel):
         date_to = self.date_to
         company = self.company_id
         f = io.BytesIO()
-        xls_filename = "Tabla de gastos " + company.name+ "_" +str(date_from.strftime('%d/%m/%Y')) + "_" + str(date_to.strftime('%d/%m/%Y'))
+        xls_filename = "Reporte de rentabilidad " + company.name+ "_" +str(date_from.strftime('%d/%m/%Y')) + "_" + str(date_to.strftime('%d/%m/%Y'))
         book = xlsxwriter.Workbook(f)
         sheet = book.add_worksheet('Gastos')
         company_name = company.name.upper()
