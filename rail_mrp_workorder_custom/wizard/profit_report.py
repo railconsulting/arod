@@ -119,8 +119,8 @@ class SaleProfitReport(models.TransientModel):
             #delivery
             free_delivery = sum(o.shipping_total for o in source_order_lines.order_id.filtered(lambda x: x.shipping_type == x.shipping_type == 'free'))
             customer_delivery = sum(o.shipping_total for o in source_order_lines.order_id.filtered(lambda x: x.shipping_type == x.shipping_type == 'customer'))
-            if bonus_cost > 0 and free_delivery > 0 and customer_delivery > 0:
-                delivery_perc = ((bonus_cost / ((free_delivery + customer_delivery) - bonus_cost)) / bonus_cost)
+            if free_delivery > 0 and customer_delivery > 0:
+                delivery_perc = ((invoice_cost / ((free_delivery + customer_delivery) - invoice_cost)) / invoice_cost)
             else:
                 delivery_perc = 0
 
@@ -134,8 +134,8 @@ class SaleProfitReport(models.TransientModel):
                 '6': invoice_subtotal,
                 '7': invoice_perc, 
                 '8': free_delivery + customer_delivery,
-                '9': (free_delivery + customer_delivery) - bonus_cost,
-                '10': bonus_cost,
+                '9': (free_delivery + customer_delivery) + invoice_cost,
+                '10': customer_delivery + invoice_cost,
                 '11': delivery_perc,
                 '12': nc_cost,
                 '13': nc_subtotal,
@@ -328,20 +328,20 @@ class SaleProfitReport(models.TransientModel):
             sheet.write(row, 8, d['8'], calibri_10)
             sheet.write(row, 9, d['9'], calibri_10)
             sheet.write(row, 10, d['10'], calibri_10)
-            sheet.write(row, 11, d['11'], calibri_10)
-            sheet.write(row, 12, d['12'], calibri_10_per)
+            sheet.write(row, 11, d['11'], calibri_10_per)
+            sheet.write(row, 12, d['12'], calibri_10)
             sheet.write(row, 13, d['13'], calibri_10)
             sheet.write(row, 14, d['14'], calibri_10)
             sheet.write(row, 15, d['15'], calibri_10)
             sheet.write(row, 16, d['16'], calibri_10_per)
-            sheet.write(row, 17, d['17'], calibri_10_int)
-            sheet.write(row, 18, d['18'], calibri_10_int)
+            sheet.write(row, 17, d['17'], calibri_10)
+            sheet.write(row, 18, d['18'], calibri_10)
             sheet.write(row, 19, d['19'], calibri_10)
-            sheet.write(row, 20, d['20'], calibri_10)
-            sheet.write(row, 21, d['21'], calibri_10)
-            sheet.write(row, 22, d['22'] , calibri_10)
+            sheet.write(row, 20, d['20'], calibri_10_per)
+            sheet.write(row, 21, d['21'], calibri_10_int)
+            sheet.write(row, 22, d['22'] , calibri_10_int)
             sheet.write(row, 23, d['23'], calibri_10)
-            sheet.write(row, 24, d['24'], calibri_10_per)
+            sheet.write(row, 24, d['24'], calibri_10)
             sheet.write(row, 25, d['25'], calibri_10)
             sheet.write(row, 26, d['26'], calibri_10)
             sheet.write(row, 27, d['27'], calibri_10)
@@ -380,23 +380,23 @@ class SaleProfitReport(models.TransientModel):
         sheet.write(row, 8, tot8, table_footer)
         sheet.write(row, 9, tot9, table_footer)
         sheet.write(row, 10, tot10, table_footer)
-        sheet.write(row, 11, tot11, table_footer)
-        sheet.write(row, 12, tot12, table_footer_per)
+        sheet.write(row, 11, tot11, table_footer_per)
+        sheet.write(row, 12, tot12, table_footer)
         sheet.write(row, 13, tot13, table_footer)
         sheet.write(row, 14, tot14, table_footer)
         sheet.write(row, 15, tot15, table_footer)
         sheet.write(row, 16, tot16, table_footer_per)
-        sheet.write(row, 17, tot17, table_footer_int)
-        sheet.write(row, 18, tot18, table_footer_int)
+        sheet.write(row, 17, tot17, table_footer)
+        sheet.write(row, 18, tot18, table_footer)
         sheet.write(row, 19, tot19, table_footer)
-        sheet.write(row, 20, tot20, table_footer)
-        sheet.write(row, 21, tot21, table_footer)
-        sheet.write(row, 22, tot22, table_footer)
+        sheet.write(row, 20, tot20, table_footer_per)
+        sheet.write(row, 21, tot21, table_footer_int)
+        sheet.write(row, 22, tot22, table_footer_int)
         sheet.write(row, 23, tot23, table_footer)
-        sheet.write(row, 24, tot24, table_footer_per)
-        sheet.write(row, 25, tot25, table_footer_per)
-        sheet.write(row, 26, tot26, table_footer_per)
-        sheet.write(row, 27, tot27, table_footer_per)
+        sheet.write(row, 24, tot24, table_footer)
+        sheet.write(row, 25, tot25, table_footer)
+        sheet.write(row, 26, tot26, table_footer)
+        sheet.write(row, 27, tot27, table_footer)
         sheet.write(row, 28, tot28, table_footer_per)
 
 
