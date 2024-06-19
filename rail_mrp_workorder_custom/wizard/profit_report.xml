@@ -27,7 +27,7 @@
                 </group>
                 <group string="Ventas">
                     <group>
-                        <field name="move_ids" widget="many2many_tags"/>
+                        <field name="move_ids" string="Facturas" widget="many2many_tags"/>
                         <field name="partner_tags" widget="many2many_tags"/>
                     </group>
                     <group>

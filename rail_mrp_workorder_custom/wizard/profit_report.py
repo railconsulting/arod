@@ -32,7 +32,8 @@ class SaleProfitReport(models.TransientModel):
             ('date','<=',self.date_to),
             ('move_type','=', 'out_invoice',)
         ]
-        line_domain = [('display_type','=','product')]
+        line_domain = []
+        aml_domain = [('display_type','=','product')]
         if self.branch_ids:
             domain.append(('move_id.branch_id','in', self.branch_ids.ids))
         if self.currency_ids:
@@ -44,10 +45,11 @@ class SaleProfitReport(models.TransientModel):
         if self.categ_ids:
             domain.append(('product_id.categ_id','in', self.categ_ids.ids))
             line_domain.append(('product_id.categ_id','in', self.categ_ids.ids))
+            aml_domain.append(('product_id.categ_id','in', self.categ_ids.ids))
         if self.product_ids:
             domain.append(('product_id','in',self.product_ids.ids))
             line_domain.append(('product_id','in',self.product_ids.ids))
-
+            aml_domain.append(('product_id','in',self.product_ids.ids))
 
         lines = self.env['account.move.line'].search(domain)
         invoice_domain = []
@@ -57,10 +59,11 @@ class SaleProfitReport(models.TransientModel):
         moves = self.env['account.move'].browse(invoice_domain)
         data = []
         for m in moves:
-            source_orders = m.line_ids.sale_line_ids.filtered_domain(line_domain).order_id
-            source_stocklayers = source_orders.order_line.move_ids.filtered_domain(line_domain).stock_valuation_layer_ids
-            inv_lines = m.line_ids.filtered_domain(line_domain)
-            devs = source_orders.order_line.move_ids.filtered(lambda x: x.picking_code == 'incoming')
+            source_order_lines = m.line_ids.sale_line_ids.filtered_domain(line_domain)
+            source_stocklayers = source_order_lines.move_ids.stock_valuation_layer_ids
+            _logger.critical(str(source_order_lines))
+            inv_lines = m.line_ids.filtered_domain(aml_domain)
+            devs = source_order_lines.move_ids.filtered(lambda x: x.picking_code == 'incoming')
             devs = devs.filtered_domain(line_domain).stock_valuation_layer_ids
             nc = self.env['account.move'].search([('reversed_entry_id','=',m.id)])
             nc_lines_dev = nc.line_ids.filtered_domain(line_domain).filtered(lambda x: x.product_id.detailed_type == 'product')
@@ -87,14 +90,20 @@ class SaleProfitReport(models.TransientModel):
             nc_net_cost = invoice_cost - nc_cost
             nc_tax = sum(l.price_total - l.price_subtotal for l in nc_lines_dev)
             nc_net_subtotal = invoice_subtotal - nc_subtotal
-            nc_porc = ((nc_net_subtotal - nc_net_cost) / nc_net_subtotal)
+            if nc_net_subtotal > 0:
+                nc_porc = ((nc_net_subtotal - nc_net_cost) / nc_net_subtotal)
+            else:
+                nc_porc = 0
 
             #bonif
             bonus_subtotal =  sum(abs(l.debit) for l in nc_lines_bon)
             bonus_cost = nc_net_cost
             bonus_net_subtotal = nc_net_subtotal - bonus_subtotal
             bonus_tax = sum(l.price_total - l.price_subtotal for l in nc_lines_bon)
-            bonus_perc = ((bonus_net_subtotal - bonus_cost) / bonus_net_subtotal)
+            if bonus_net_subtotal > 0:
+                bonus_perc = ((bonus_net_subtotal - bonus_cost) / bonus_net_subtotal)
+            else:
+                bonus_perc = 0
 
             #total
             subtotal = invoice_subtotal - (nc_subtotal + bonus_subtotal)
@@ -102,46 +111,49 @@ class SaleProfitReport(models.TransientModel):
             net = subtotal + tax
             cost_subtotal = nc_net_cost
             profit = subtotal - cost_subtotal
-            profit_perc = ((subtotal - cost_subtotal) / subtotal)
+            if subtotal > 0:
+                profit_perc = ((subtotal - cost_subtotal) / subtotal)
+            else:
+                profit_perc = 0
 
             #delivery
-            free_delivery = sum(o.shipping_total for o in source_orders.filtered(lambda x: x.shipping_type == x.shipping_type == 'free'))
-            customer_delivery = sum(o.shipping_total for o in source_orders.filtered(lambda x: x.shipping_type == x.shipping_type == 'customer'))
-            if bonus_cost > 0 and free_delivery > 0 and customer_delivery > 0:
-                delivery_perc = ((bonus_cost / ((free_delivery + customer_delivery) - bonus_cost)) / bonus_cost)
+            free_delivery = sum(o.shipping_total for o in source_order_lines.order_id.filtered(lambda x: x.shipping_type == x.shipping_type == 'free'))
+            customer_delivery = sum(o.shipping_total for o in source_order_lines.order_id.filtered(lambda x: x.shipping_type == x.shipping_type == 'customer'))
+            if free_delivery > 0 and customer_delivery > 0:
+                delivery_perc = ((invoice_cost / ((free_delivery + customer_delivery) - invoice_cost)) / invoice_cost)
             else:
                 delivery_perc = 0
 
             vals={
                 '0': m.branch_id.code if m.branch_id.code else '' + "-" + folio,
-                '1': ', '.join(o.name for o in source_orders),
+                '1': ', '.join(o.name for o in source_order_lines.order_id),
                 '2': m.date.strftime("%d/%m/%Y"),
                 '3': m.partner_id.display_name,
                 '4': m.name,
                 '5': invoice_cost,
                 '6': invoice_subtotal,
                 '7': invoice_perc, 
-                '8': nc_cost,
-                '9': nc_subtotal,
-                '10': nc_net_cost,
-                '11': nc_net_subtotal,
-                '12': nc_porc,
-                '13': bonus_subtotal, 
-                '14': bonus_cost,
-                '15': bonus_net_subtotal,
-                '16': bonus_perc,
-                '17': ctrl1,
-                '18': ctrl2,
-                '19': subtotal,
-                '20': tax,
-                '21': net,
-                '22': cost_subtotal,
-                '23': profit,
-                '24': profit_perc,
-                '25': free_delivery + customer_delivery,
-                '26': (free_delivery + customer_delivery) - bonus_cost,
-                '27': bonus_cost,
-                '28': delivery_perc,
+                '8': free_delivery + customer_delivery,
+                '9': (free_delivery + customer_delivery) + invoice_cost,
+                '10': customer_delivery + invoice_cost,
+                '11': delivery_perc,
+                '12': nc_cost,
+                '13': nc_subtotal,
+                '14': nc_net_cost,
+                '15': nc_net_subtotal,
+                '16': nc_porc,
+                '17': bonus_subtotal, 
+                '18': bonus_cost,
+                '19': bonus_net_subtotal,
+                '20': bonus_perc,
+                '21': ctrl1,
+                '22': ctrl2,
+                '23': subtotal,
+                '24': tax,
+                '25': net,
+                '26': cost_subtotal,
+                '27': profit,
+                '28': profit_perc,
             }
 
             data.append(vals)              
@@ -152,7 +164,7 @@ class SaleProfitReport(models.TransientModel):
         date_to = self.date_to
         company = self.company_id
         f = io.BytesIO()
-        xls_filename = "Tabla de gastos " + company.name+ "_" +str(date_from.strftime('%d/%m/%Y')) + "_" + str(date_to.strftime('%d/%m/%Y'))
+        xls_filename = "Reporte de rentabilidad " + company.name+ "_" +str(date_from.strftime('%d/%m/%Y')) + "_" + str(date_to.strftime('%d/%m/%Y'))
         book = xlsxwriter.Workbook(f)
         sheet = book.add_worksheet('Gastos')
         company_name = company.name.upper()
@@ -272,36 +284,38 @@ class SaleProfitReport(models.TransientModel):
         sheet.write(row +1, 5, "COSTO", table_header)
         sheet.write(row +1, 6, "SUB-TOTAL", table_header)
         sheet.write(row +1, 7, "%", table_header)
-        sheet.merge_range(row, 8, row, 12, "DEVOLUCIONES", table_header)
-        sheet.write(row +1, 8, "COSTO", table_header)
-        sheet.write(row +1, 9, "SUB-TOTAL", table_header)
-        sheet.write(row +1, 10, "COSTO NETO", table_header)
-        sheet.write(row +1, 11, "SUB-NETO", table_header)
-        sheet.write(row +1, 12, "%", table_header)
-        sheet.merge_range(row, 13, row, 16, "BONIFICACIONES", table_header)
+        sheet.merge_range(row, 8, row, 11, "FLETES", table_header)
+        sheet.write(row +1, 8, "FLETE", table_header)
+        sheet.write(row +1, 9, "COSTO CTRL", table_header)
+        sheet.write(row +1, 10, "SUB-TOTAL", table_header)
+        sheet.write(row +1, 11, "%", table_header)
+        sheet.merge_range(row, 12, row, 16, "DEVOLUCIONES", table_header)
+        sheet.write(row +1, 12, "COSTO", table_header)
         sheet.write(row +1, 13, "SUB-TOTAL", table_header)
-        sheet.write(row +1, 14, "COSTO", table_header)
-        sheet.write(row +1, 15, "SUBTOTAL", table_header)
+        sheet.write(row +1, 14, "COSTO NETO", table_header)
+        sheet.write(row +1, 15, "SUB-NETO", table_header)
         sheet.write(row +1, 16, "%", table_header)
-        sheet.merge_range(row, 17, row, 24, "TOTAL", table_header)
-        sheet.write(row +1, 17, "CTRL-1", table_header)
-        sheet.write(row +1, 18, "CTRL-2", table_header)
-        sheet.write(row +1, 19, "SUB-TOTAL", table_header)
-        sheet.write(row +1, 20, "IMPUESTO", table_header)
-        sheet.write(row +1, 21, "NETO", table_header)
-        sheet.write(row +1, 22, "COSTO", table_header)
-        sheet.write(row +1, 23, "U. BRUTA", table_header)
-        sheet.write(row +1, 24, "%", table_header)
-        sheet.merge_range(row, 25, row, 28, "FLETES", table_header)
-        sheet.write(row +1, 25, "FLETE", table_header)
-        sheet.write(row +1, 26, "COSTO CTRL", table_header)
-        sheet.write(row +1, 27, "SUB-TOTAL", table_header)
+        sheet.merge_range(row, 17, row, 20, "BONIFICACIONES", table_header)
+        sheet.write(row +1, 17, "SUB-TOTAL", table_header)
+        sheet.write(row +1, 18, "COSTO", table_header)
+        sheet.write(row +1, 19, "SUBTOTAL", table_header)
+        sheet.write(row +1, 20, "%", table_header)
+        sheet.merge_range(row, 21, row, 28, "TOTAL", table_header)
+        sheet.write(row +1, 21, "CTRL-1", table_header)
+        sheet.write(row +1, 22, "CTRL-2", table_header)
+        sheet.write(row +1, 23, "SUB-TOTAL", table_header)
+        sheet.write(row +1, 24, "IMPUESTO", table_header)
+        sheet.write(row +1, 25, "NETO", table_header)
+        sheet.write(row +1, 26, "COSTO", table_header)
+        sheet.write(row +1, 27, "U. BRUTA", table_header)
         sheet.write(row +1, 28, "%", table_header)
+
 
         data = self.get_report_data()
         row += 2
         tot5=tot6=tot7=tot8=tot9=tot10=tot11=tot12=tot13 = 0
         tot14=tot15=tot16=tot17=tot18=tot19=tot20=tot21=tot22=tot23=tot24 =0
+        tot25=tot26=tot27=tot28=0
         for d in data:
             sheet.write(row, 0, d['0'], calibri_10)
             sheet.write(row, 1, d['1'], calibri_10)
@@ -314,20 +328,20 @@ class SaleProfitReport(models.TransientModel):
             sheet.write(row, 8, d['8'], calibri_10)
             sheet.write(row, 9, d['9'], calibri_10)
             sheet.write(row, 10, d['10'], calibri_10)
-            sheet.write(row, 11, d['11'], calibri_10)
-            sheet.write(row, 12, d['12'], calibri_10_per)
+            sheet.write(row, 11, d['11'], calibri_10_per)
+            sheet.write(row, 12, d['12'], calibri_10)
             sheet.write(row, 13, d['13'], calibri_10)
             sheet.write(row, 14, d['14'], calibri_10)
             sheet.write(row, 15, d['15'], calibri_10)
             sheet.write(row, 16, d['16'], calibri_10_per)
-            sheet.write(row, 17, d['17'], calibri_10_int)
-            sheet.write(row, 18, d['18'], calibri_10_int)
+            sheet.write(row, 17, d['17'], calibri_10)
+            sheet.write(row, 18, d['18'], calibri_10)
             sheet.write(row, 19, d['19'], calibri_10)
-            sheet.write(row, 20, d['20'], calibri_10)
-            sheet.write(row, 21, d['21'], calibri_10)
-            sheet.write(row, 22, d['22'] , calibri_10)
+            sheet.write(row, 20, d['20'], calibri_10_per)
+            sheet.write(row, 21, d['21'], calibri_10_int)
+            sheet.write(row, 22, d['22'] , calibri_10_int)
             sheet.write(row, 23, d['23'], calibri_10)
-            sheet.write(row, 24, d['24'], calibri_10_per)
+            sheet.write(row, 24, d['24'], calibri_10)
             sheet.write(row, 25, d['25'], calibri_10)
             sheet.write(row, 26, d['26'], calibri_10)
             sheet.write(row, 27, d['27'], calibri_10)
@@ -352,6 +366,10 @@ class SaleProfitReport(models.TransientModel):
             tot22 += d['22']
             tot23 += d['23']
             tot24 += d['24']
+            tot25 += d['25']
+            tot26 += d['26']
+            tot27 += d['27']
+            tot28 += d['28']
 
             row += 1
 
@@ -362,20 +380,24 @@ class SaleProfitReport(models.TransientModel):
         sheet.write(row, 8, tot8, table_footer)
         sheet.write(row, 9, tot9, table_footer)
         sheet.write(row, 10, tot10, table_footer)
-        sheet.write(row, 11, tot11, table_footer)
-        sheet.write(row, 12, tot12, table_footer_per)
+        sheet.write(row, 11, tot11, table_footer_per)
+        sheet.write(row, 12, tot12, table_footer)
         sheet.write(row, 13, tot13, table_footer)
         sheet.write(row, 14, tot14, table_footer)
         sheet.write(row, 15, tot15, table_footer)
         sheet.write(row, 16, tot16, table_footer_per)
-        sheet.write(row, 17, tot17, table_footer_int)
-        sheet.write(row, 18, tot18, table_footer_int)
+        sheet.write(row, 17, tot17, table_footer)
+        sheet.write(row, 18, tot18, table_footer)
         sheet.write(row, 19, tot19, table_footer)
-        sheet.write(row, 20, tot20, table_footer)
-        sheet.write(row, 21, tot21, table_footer)
-        sheet.write(row, 22, tot22, table_footer)
+        sheet.write(row, 20, tot20, table_footer_per)
+        sheet.write(row, 21, tot21, table_footer_int)
+        sheet.write(row, 22, tot22, table_footer_int)
         sheet.write(row, 23, tot23, table_footer)
-        sheet.write(row, 24, tot24, table_footer_per)
+        sheet.write(row, 24, tot24, table_footer)
+        sheet.write(row, 25, tot25, table_footer)
+        sheet.write(row, 26, tot26, table_footer)
+        sheet.write(row, 27, tot27, table_footer)
+        sheet.write(row, 28, tot28, table_footer_per)
 
 
         sheet.set_column(0,0,20)
@@ -383,7 +405,7 @@ class SaleProfitReport(models.TransientModel):
         sheet.set_column(2,2,12)
         sheet.set_column(3,3,50)
         sheet.set_column(4,4,25)
-        sheet.set_column(5,24,15)
+        sheet.set_column(5,28,15)
 
 
 
