@@ -15,6 +15,7 @@
                                 <field name="vacaciones"/>
                                 <field name="prima_vac"/>
                                 <field name="aguinaldo"/>
+                                <field name="factor_integracion"/>
                             </tree>
                         </field>
                         <field name="tabla_LISR" string="ISR Mensual Art. 113 LISR">
