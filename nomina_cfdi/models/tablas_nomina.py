@@ -13,7 +13,6 @@ class TablasAntiguedadesLine(models.Model):
     vacaciones = fields.Float('Vacaciones/Días') 
     prima_vac = fields.Float('Prima vacacional (%)')
     aguinaldo = fields.Float('Aguinaldo/Días')
-   # factor_integracion = fields.Float('Factor integracion')
 
 class TablasGeneralLine(models.Model):
     _name = 'tablas.general.line'
