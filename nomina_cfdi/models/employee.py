@@ -88,7 +88,7 @@ class Employee(models.Model):
             ('630', 'Enajenación de acciones en bolsa de valores')],
         string=_('Régimen'), default='605'
     )
-
+    
 
     jornada = fields.Selection(
         selection=[('01', '01 - Diurna'), 
