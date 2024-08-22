@@ -215,7 +215,7 @@ class TablasCFDI(models.Model):
             self.factor_sueldo = 0.00
 
     def calcular_reparto_utilidades(self):
-        payslips = self.env['hr.payslip'].search([('date_from', '>=', self.fecha_inicio), ('date_to', '<=', self.fecha_fin),('tipo_nomina','=', 'O')])
+        payslips = self.env['hr.payslip'].search([('date_from', '>=', self.fecha_inicio), ('date_to', '<=', self.fecha_fin),('tipo_nomina','=', 'E')])
         work100_lines = payslips.mapped('worked_days_line_ids').filtered(lambda x:x.code=='WORK100')
         net_lines = payslips.mapped('line_ids').filtered(lambda x:x.code=='NET')
         
