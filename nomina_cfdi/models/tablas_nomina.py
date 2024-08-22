@@ -216,14 +216,14 @@ class TablasCFDI(models.Model):
 
     def calcular_reparto_utilidades(self):
         payslips = self.env['hr.payslip'].search([('date_from', '>=', self.fecha_inicio), ('date_to', '<=', self.fecha_fin),('tipo_nomina','=', 'O')])
-        ptu_lines = payslips.mapped('worked_days_line_ids').filtered(lambda x:x.code=='PTU')
+        work100_lines = payslips.mapped('worked_days_line_ids').filtered(lambda x:x.code=='WORK100')
         net_lines = payslips.mapped('line_ids').filtered(lambda x:x.code=='NET')
         
         total_dias_trabajados, total_sueldo_percibido = 0.0, 0.0
         
         total_dias_by_employee = {}
         total_sueldo_employee = {}
-        for line in ptu_lines:
+        for line in work100_lines:
             total_dias_trabajados += line.number_of_days
             if line.payslip_id.employee_id not in total_dias_by_employee:
                 total_dias_by_employee.update({line.payslip_id.employee_id: 0.0})
