@@ -1018,6 +1018,7 @@ class HrPayslip(models.Model):
         }
 
         #************ SEPARACION / INDEMNIZACION   ************#
+        separacion ={}
         if payslip_total_SEIN > 0:
             if payslip_total_PERG > self.contract_id.wage:
                 ingreso_acumulable = self.contract_id.wage
@@ -1028,15 +1029,13 @@ class HrPayslip(models.Model):
             else:
                 ingreso_no_acumulable = payslip_total_PERG - self.contract_id.wage
 
-            percepcion.update({
-               'separacion': [{
-                        'TotalPagado': payslip_total_SEIN,
-                        'NumAñosServicio': self.contract_id.antiguedad_anos,
-                        'UltimoSueldoMensOrd': self.contract_id.wage,
-                        'IngresoAcumulable': ingreso_acumulable,
-                        'IngresoNoAcumulable': ingreso_no_acumulable,
-                }]
-            })
+            separacion = {
+                'TotalPagado': str(round(payslip_total_SEIN,2)),
+                'NumAniosServicio': int(self.contract_id.antiguedad_anos),
+                'UltimoSueldoMensOrd': str(round(self.contract_id.wage,2)),
+                'IngresoAcumulable': str(round(ingreso_acumulable,2)),
+                'IngresoNoAcumulable': str(round(ingreso_no_acumulable,2)),
+            }
 
         percepcion.update({'lineas_de_percepcion_grabadas': lineas_de_percepcion, 'no_per_grabadas': len(percepciones_grabadas_lines)-percepciones_excentas_lines})
         percepcion.update({'lineas_de_percepcion_excentas': lineas_de_percepcion_exentas, 'no_per_excentas': percepciones_excentas_lines})
@@ -1291,13 +1290,15 @@ class HrPayslip(models.Model):
                 'ClaveEntFed': self.employee_id.estado.code or '',   
             },
             'Percepciones': {
-                'TotalSueldos': str(round(payslip_total_PERG + payslip_total_PERE,2)),
+                'TotalSueldos': str(round(payslip_total_PERG + payslip_total_PERE - payslip_total_SEIN - payslip_total_JPRE,2)),
                 'TotalGravado': str(round(payslip_total_PERG,2)),
                 'TotalExento': str(round(payslip_total_PERE,2)),
+                'TotalSeparacionIndemnizacion': str(round(payslip_total_SEIN,2))
             },
             'Percepcion':{
                 'Percepcion': lineas_de_percepcion,
                 'PercepcionExc': lineas_de_percepcion_exentas,
+                'Separacion': separacion,
             },
             'Deducciones': Deducciones,
             'Deduccion': lineas_deduccion,
@@ -1403,9 +1404,10 @@ class HrPayslip(models.Model):
                 'ClaveEntFed': self.employee_id.estado.code or '',
             })
         n12percepciones = SubElement(nomina12,'nomina12:Percepciones',{
-            'TotalSueldos': str(round(payslip_total_PERG + payslip_total_PERE,2)),
+            'TotalSueldos': str(round(payslip_total_PERG + payslip_total_PERE - payslip_total_SEIN - payslip_total_JPRE,2)),
             'TotalGravado': str(round(payslip_total_PERG,2)),
             'TotalExento': str(round(payslip_total_PERE,2)),
+            'TotalSeparacionINdemnizacion': str(round(payslip_total_SEIN,2)),
         })
 
         for l in lineas_de_percepcion:
@@ -1424,7 +1426,15 @@ class HrPayslip(models.Model):
                 'ImporteGravado': str(r['ImporteGravado']) or '',
                 'ImporteExento': str(r['ImporteExento']) or ''
             })
-        
+        if payslip_total_SEIN > 0:
+            n12sein = SubElement(n12percepciones,'nomina12:SeparacionIndemnizacion',{
+                'TotalPagado': str(round(payslip_total_SEIN,2)),
+                'NumAñosServicio': str(round(self.contract_id.antiguedad_anos,2)),
+                'UltimoSueldoMensOrd': str(round(self.contract_id.wage,2)),
+                'IngresoAcumulable': str(round(ingreso_acumulable,2)),
+                'IngresoNoAcumulable': str(round(ingreso_no_acumulable,2)),
+            })
+
         if payslip_total_TDED > 0:
             if total_imp_ret > 0:
                 n12deducciones = SubElement(nomina12,'nomina12:Deducciones',{
@@ -1499,7 +1509,7 @@ class HrPayslip(models.Model):
         #AÑADIMOS SELLO A NUESTRO XML
         tree.attrib['Sello'] = sello.decode("utf-8") 
         xml = etree.tostring(
-                tree, pretty_print=False,
+                tree, pretty_print=True,
                 xml_declaration=False, encoding='UTF-8')
         
         try:

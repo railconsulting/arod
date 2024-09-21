@@ -74,7 +74,10 @@
             <nomina12:Percepciones 
                 TotalSueldos="{{ data['Percepciones']['TotalSueldos'] }}" 
                 TotalGravado="{{ data['Percepciones']['TotalGravado'] }}" 
-                TotalExento="{{ data['Percepciones']['TotalExento'] }}">
+                TotalExento="{{ data['Percepciones']['TotalExento'] }}"
+                {% if data['Percepciones']['TotalSeparacionIndemnizacion']|float > 0 %} 
+                    TotalSeparacionIndemnizacion="{{ data['Percepciones']['TotalSeparacionIndemnizacion'] }}" 
+                {% endif %}>
                 {% for Percepcion in data['Percepcion']['Percepcion'] %}
                     <nomina12:Percepcion 
                         TipoPercepcion="{{ Percepcion['TipoPercepcion'] }}" 
@@ -91,6 +94,14 @@
                         ImporteGravado="{{ PercepcionExc['ImporteGravado'] }}" 
                         ImporteExento="{{ PercepcionExc['ImporteExento'] }}"/>
                 {% endfor %}
+                {% if data['Percepciones']['TotalSeparacionIndemnizacion']|float > 0 %}
+                    <nomina12:SeparacionIndemnizacion
+                        TotalPagado="{{data['Percepcion']['Separacion']['TotalPagado']}}"
+                        NumAñosServicio="{{data['Percepcion']['Separacion']['NumAniosServicio']}}"
+                        UltimoSueldoMensOrd="{{data['Percepcion']['Separacion']['UltimoSueldoMensOrd']}}"
+                        IngresoAcumulable="{{data['Percepcion']['Separacion']['IngresoAcumulable']}}"
+                        IngresoNoAcumulable="{{data['Percepcion']['Separacion']['IngresoNoAcumulable']}}"/>
+                {% endif %}
             </nomina12:Percepciones>
             {% if data['Deducciones'] %}
                 <nomina12:Deducciones 
