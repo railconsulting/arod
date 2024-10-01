@@ -1,3 +1,4 @@
 # -*- coding: utf-8 -*-
 
-from . import work_entry_batch
+from . import workentry_batch
+from . import variable_batch

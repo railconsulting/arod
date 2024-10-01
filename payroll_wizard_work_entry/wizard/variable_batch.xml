@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <data>
+    <!--Wizard form view-->
+        <record id="input_wizard_form" model="ir.ui.view">
+            <field name="name">input.wizard.form</field>
+            <field name="model">input.entry.wizard</field>
+            <field name="arch" type="xml">
+                <form string="Registro de variables">
+                    <header>
+                    </header>
+                    <group>
+                        <group>
+                            <field name="payslip_run_id" readonly="1"/>
+                            <field name="input_type_id"  options='{"create":False,"create_edit": False,"no_open": True, "no_quick_create": True}' 
+                                        attrs="{'invisible':[('record_type','!=','manual')]}"/>
+                            <field name="xls_file" attrs="{'invisible':[('record_type','=','manual')]}"/>
+                        </group>
+                        <group>
+                            <field name="record_type" widget="radio" options="{'horizontal': true}"/>
+                            <button name="download_excel_file" string="Descargar plantilla"
+                                                                        type="object" attrs="{'invisible':[('record_type','=','manual')]}"/>
+                            <button name="get_input_payslips" type="object"  string="Obtener registros" attrs="{'invisible':[('record_type','!=','manual')]}"/>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Variables" autofocus="autofocus">
+                            <field name="input_payslip_ids" nolabel="1">
+                                <tree create="0" delete="0" editable="bottom">
+                                    <field name="payslip_id" readonly="1"/>
+                                    <field name="input_type_id" readonly="1"/>
+                                    <field name="name" readonlye="1"/>
+                                    <field name="amount"/>
+                                </tree>
+                            </field>
+                        </page>
+                    </notebook>
+                    <footer>
+                        <button name="confirm_input_entries" type="object"  class="oe_highlight" string="Confirmar"/>
+                    </footer>
+                </form>
+            </field>
+        </record>
+        <record id="variable_wizard_action" model="ir.actions.act_window">
+            <field name="name">Variables salariales</field>
+            <field name="res_model">input.entry.wizard</field>
+            <field name="view_mode">form</field>
+            <field name="target">new</field>
+            <field name="view_id" ref="input_wizard_form"/>
+        </record>
+    </data>
+</odoo>

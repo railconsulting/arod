@@ -26,7 +26,8 @@
     # always loaded
     'data': [
         'security/ir.model.access.csv',
-        'wizard/work_entry_batch.xml',
+        'wizard/workentry_batch.xml',
+        'wizard/variable_batch.xml',
         'views/hr_payslip_run.xml',
     ],
 }
