@@ -1,3 +1,4 @@
 cfdiclient==1.2.0
 validate_email
 xmltodict
+odoo_test_helper
