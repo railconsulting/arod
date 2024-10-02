@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="arod_expenses_report" model="account.report">
+        <field name="name">Analisis de gastos</field>
+        <field name="filter_date_range" eval="True"/>
+        <field name="filter_analytic_groupby" eval="True"/>
+        <field name="filter_unfold_all" eval="True"/>
+        <field name="filter_journals" eval="True"/>
+        <field name="filter_multi_company">selector</field>
+        <field name="default_opening_date_filter">this_year</field>
+        <field name="filter_hierarchy">by_default</field>
+        <field name="column_ids">
+            <record id="balance_sheet_balance" model="account.report.column">
+                <field name="name">Balance</field>
+                <field name="expression_label">balance</field>
+            </record>
+        </field>
+        <field name="line_ids">
+            <record id="arod_expense_report_expenses" model="account.report.line">
+                <field name="name">GASTOS</field>
+                <field name="code">AROD_EXP</field>
+                <field name="groupby">group_id</field>
+                <field name="foldable" eval="True"/>
+                <field name="expression_ids">
+                    <record id="arod_expense_report_expense_balance" model="account.report.expression">
+                        <field name="label">balance</field>
+                        <field name="engine">account_codes</field>
+                        <field name="formula">601.</field>
+                        <field name="date_scope">normal</field>
+                    </record>
+                </field>
+            </record>
+        </field>
+    </record>
+    <record id="action_account_report_arod_expense" model="ir.actions.client">
+        <field name="name">Analisis de gastos</field>
+        <field name="tag">account_report</field>
+        <field name="context" eval="{'report_id': ref('rail_mrp_workorder_custom.arod_expenses_report')}"/>
+    </record>
+</odoo>

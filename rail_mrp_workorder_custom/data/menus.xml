@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <menuitem 
+        id="menu_action_arod_expense_report" 
+        name="Analisis de gastos" 
+        action="action_account_report_arod_expense" 
+        parent="account.account_reports_legal_statements_menu" 
+        groups="account.group_account_readonly"/>
+    <menuitem 
+        id="menu_action_arod_bankflow_report" 
+        name="Flujo bancario" 
+        action="action_account_report_arod_bankflow" 
+        parent="account.account_reports_legal_statements_menu" 
+        groups="account.group_account_readonly"/>
+</odoo>

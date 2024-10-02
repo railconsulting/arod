@@ -7,7 +7,13 @@ from datetime import datetime
 
 _logger = logging.getLogger(__name__)
 
-class BankFlowWizard(models.TransientModel):
+class MisExpenseReport(models.Model):
+    _name = 'mis.expense.report'
+    _description = "MIS Expense Report"
+
+    
+
+class ExpenseReportWizard(models.TransientModel):
     _name = 'expenses.report.wizard'
     _description = "Expenses report"
 
