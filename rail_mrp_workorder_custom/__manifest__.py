@@ -16,7 +16,7 @@
         'wizard/expenses_report.xml',
         'wizard/profit_report.xml',
         'views/mrp_production.xml',
-        #'views/mrp_workorder.xml',
+        #'views/mrp_workorder.xml'.,
         'views/account_payment.xml',
         'reports/payment_integration_report.xml',
     ],
