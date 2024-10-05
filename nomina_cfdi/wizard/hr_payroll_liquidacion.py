@@ -96,8 +96,7 @@ class GeneraLiquidaciones(models.TransientModel):
             inputs.append((0,0,{'input_type_id': pda_type.id, 'name' :'[PDA] Prima antiguedad', 'amount': self.monto_prima_antiguedad}))
             inputs.append((0,0,{'input_type_id': ind_type.id, 'name' :'[IND] Indemnizacion', 'amount': self.monto_indemnizacion}))
             inputs.append((0,0,{'input_type_id': pps_type.id, 'name' :'[PPS] Pago por separacion', 'amount': self.pago_separacion}))
-            worked_days.append((0,0,{'work_entry_type_id': 1,'name' :'Dias a pagar', 'code' : 'WORK100', 'number_of_days': 0}))
-
+        #raise ValidationError(str(worked_days))
         values = dict(default_values, **{
             'name': _('New Payslip'),
             'employee_id' : employee.id,
