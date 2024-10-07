@@ -217,12 +217,6 @@ class SaleProfitReport(models.TransientModel):
                 'c27': data['27'],
                 'c28': data['28'],
                 'move_id': data['move_id'],
-                'move_lines_ids': data['move_lines_ids'],
-                'refund_ids': data['refund_ids'],
-                'bonification_ids': data['bonification_ids'],
-                'cost_ids': data['cost_ids'],
-                'free_delivery_ids': data['free_delivery_ids'],
-                'customer_delivery_ids': data['customer_delivery_ids'],
             }))
 
         self.line_ids = lines
