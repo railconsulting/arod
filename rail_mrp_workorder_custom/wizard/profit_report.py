@@ -25,6 +25,7 @@ class SaleProfitReport(models.TransientModel):
     user_ids = fields.Many2many('res.users', string="Vendedores")
     partner_ids = fields.Many2many('res.partner', string="Clientes")
     move_ids = fields.Many2many('account.move', domain=[('move_type','in', ['out_invoice','out_refund'])])
+    line_ids = fields.One2many('sale.profit.report.line', 'wizard_id', string="Report Lines")
 
     def get_report_data(self):
         domain = [
@@ -61,7 +62,6 @@ class SaleProfitReport(models.TransientModel):
         for m in moves:
             source_order_lines = m.line_ids.sale_line_ids.filtered_domain(line_domain)
             source_stocklayers = source_order_lines.move_ids.stock_valuation_layer_ids
-            _logger.critical(str(source_order_lines))
             inv_lines = m.line_ids.filtered_domain(aml_domain)
             devs = source_order_lines.move_ids.filtered(lambda x: x.picking_code == 'incoming')
             devs = devs.filtered_domain(line_domain).stock_valuation_layer_ids
@@ -72,6 +72,7 @@ class SaleProfitReport(models.TransientModel):
                 folio = m.l10n_mx_edi_cfdi_uuid.rsplit("-",1)[-1]
             else:
                 folio = m.name
+
             #amount variables
             ctrl1 = sum(l.quantity for l in inv_lines)
             ctrl2 = sum(l.quantity for l in nc_lines_dev)
@@ -124,10 +125,18 @@ class SaleProfitReport(models.TransientModel):
             else:
                 delivery_perc = 0
 
+            #ref ids
+            move_lines_ids = inv_lines
+            refund_ids = nc_lines_dev
+            bonification_ids = nc_lines_bon
+            cost_ids = source_stocklayers
+            free_delivery_ids = source_order_lines.order_id.filtered(lambda x: x.shipping_type == x.shipping_type == 'free')
+            customer_deliver_ids = source_order_lines.order_id.filtered(lambda x: x.shipping_type == x.shipping_type == 'customer')
+
             vals={
                 '0': m.branch_id.code if m.branch_id.code else '' + "-" + folio,
                 '1': ', '.join(o.name for o in source_order_lines.order_id),
-                '2': m.date.strftime("%d/%m/%Y"),
+                '2': m.date,
                 '3': m.partner_id.display_name,
                 '4': m.name,
                 '5': invoice_cost,
@@ -154,10 +163,79 @@ class SaleProfitReport(models.TransientModel):
                 '26': cost_subtotal,
                 '27': profit,
                 '28': profit_perc,
+                'move_id': m.id,
+                'move_lines_ids': move_lines_ids.ids,
+                'refund_ids': refund_ids.ids,
+                'bonification_ids': bonification_ids.ids,
+                'cost_ids': cost_ids.ids,
+                'free_delivery_ids': free_delivery_ids.ids,
+                'customer_delivery_ids': customer_deliver_ids.ids,
             }
 
             data.append(vals)              
         return data
+    
+    
+    
+    def action_show_tree_view(self):
+        self.line_ids.unlink()  # Clean old data
+
+        # Get the report data
+        report_data = self.get_report_data()
+
+        # Populate the report lines
+        lines = []
+        for data in report_data:
+            lines.append((0, 0, {
+                'c0': data['0'],
+                'c1': data['1'],
+                'c2': data['2'],
+                'c3': data['3'],
+                'c4': data['4'],
+                'c5': data['5'],
+                'c6': data['6'],
+                'c7': data['7'],
+                'c8': data['8'],
+                'c9': data['9'],
+                'c10': data['10'],
+                'c11': data['11'],
+                'c12': data['12'],
+                'c13': data['13'],
+                'c14': data['14'],
+                'c15': data['15'],
+                'c16': data['16'],
+                'c17': data['17'],
+                'c18': data['18'],
+                'c19': data['19'],
+                'c20': data['20'],
+                'c21': data['21'],
+                'c22': data['22'],
+                'c23': data['23'],
+                'c24': data['24'],
+                'c25': data['25'],
+                'c26': data['26'],
+                'c27': data['27'],
+                'c28': data['28'],
+                'move_id': data['move_id'],
+                'move_lines_ids': data['move_lines_ids'],
+                'refund_ids': data['refund_ids'],
+                'bonification_ids': data['bonification_ids'],
+                'cost_ids': data['cost_ids'],
+                'free_delivery_ids': data['free_delivery_ids'],
+                'customer_delivery_ids': data['customer_delivery_ids'],
+            }))
+
+        self.line_ids = lines
+
+        # Return a tree view with the populated lines
+        return {
+            'name': 'Reporte de rentabilidad',
+            'type': 'ir.actions.act_window',
+            'view_mode': 'tree',
+            'res_model': 'sale.profit.report.line',
+            'domain': [('wizard_id', '=', self.id)],
+            'target': 'inline',
+        }
     
     def build_xlsx(self):
         date_from = self.date_from
@@ -319,7 +397,7 @@ class SaleProfitReport(models.TransientModel):
         for d in data:
             sheet.write(row, 0, d['0'], calibri_10)
             sheet.write(row, 1, d['1'], calibri_10)
-            sheet.write(row, 2, d['2'], calibri_10)
+            sheet.write(row, 2, d['2'].strftime("%d/%m/%Y"), calibri_10)
             sheet.write(row, 3, d['3'], calibri_10)
             sheet.write(row, 4, d['4'], calibri_10)
             sheet.write(row, 5, d['5'], calibri_10)

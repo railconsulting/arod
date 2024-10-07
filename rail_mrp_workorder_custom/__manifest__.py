@@ -15,6 +15,7 @@
         'wizard/bank_flow_wizard.xml',
         'wizard/expenses_report.xml',
         'wizard/profit_report.xml',
+        'wizard/profit_report_tree.xml',
         'views/mrp_production.xml',
         #'views/mrp_workorder.xml'.,
         'views/account_payment.xml',

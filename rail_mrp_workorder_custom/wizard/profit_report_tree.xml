@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <record id="view_sale_profit_report_tree" model="ir.ui.view">
+    <field name="name">sale.profit.report.line.tree</field>
+    <field name="model">sale.profit.report.line</field>
+    <field name="arch" type="xml">
+        <tree string="Profit Report" create="0" import="0" delete="0">
+            <field name="move_id"/>
+            <field name="c1"/>
+            <field name="c2"/>
+            <field name="c3"/>
+            <field name="c4"/>
+            <button name="open_invoice_cost_docs" type="object"  icon="fa-folder-open"/>
+            <field name="c5"/>
+            <button name="open_invoice_subtotal_docs" type="object"  icon="fa-folder-open"/>
+            <field name="c6"/>
+            <field name="c7"/>
+            <button name="open_free_delivery_docs" type="object"  icon="fa-folder-open"/>
+            <field name="c8"/>
+            <button name="open_total_delivery_docs" type="object"  icon="fa-folder-open"/>
+            <field name="c9"/>
+            <field name="c10"/>
+            <field name="c11"/>
+            <field name="c12"/>
+            <button name="open_nc_subtotal_docs" type="object"  icon="fa-folder-open"/>
+            <field name="c13"/>
+            <field name="c14"/>
+            <field name="c15"/>
+            <field name="c16"/>
+            <button name="open_bonus_subtotal_docs" type="object"  icon="fa-folder-open"/>
+            <field name="c17"/>
+            <field name="c18"/>
+            <field name="c19"/>
+            <field name="c20"/>
+            <field name="c21"/>
+            <field name="c22"/>
+            <field name="c23"/>
+            <field name="c24"/>
+            <field name="c25"/>
+            <field name="c26"/>
+            <field name="c27"/>
+            <button name="open_total_profit_docs" type="object"  icon="fa-folder-open"/>
+            <field name="c28"/>
+        </tree>
+    </field>
+</record>
+
+</odoo>

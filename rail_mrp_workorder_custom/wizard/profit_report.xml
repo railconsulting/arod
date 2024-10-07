@@ -44,7 +44,7 @@
                 </group>
                 <footer>
                     <button name="download_xls" string="Descargar" type="object" default_focus="1" class="oe_highlight"/>
-                    <button string="Salir" class="btn btn-default" special="cancel"/>
+                    <button name="action_show_tree_view" string="Ver" type="object"/>
                 </footer>
             </form>
         </field>
