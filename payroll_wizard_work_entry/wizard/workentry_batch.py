@@ -18,7 +18,7 @@ class WorkEntryWizard(models.TransientModel):
     method = fields.Selection(string="Metodo de importacion", selection=[
         ('create','Borrar y actualizar'),
         ('update','Leer y actualizar'),
-    ], required=True)
+    ], default='create')
     xls_file = fields.Binary(string="Archivo Excel")
 
     def get_work_payslips(self):
