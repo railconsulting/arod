@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <data>
+        <record model="ir.ui.view" id="res_config_importacion_xml_extended_view">
+            <field name="name">res_config.importacion_xml.extended_view</field>
+            <field name="model">res.config.settings</field>
+            <field name="inherit_id" ref="account.res_config_settings_view_form"/>
+            <field name="arch" type="xml">
+                <xpath expr="//div[@name='default_taxes_setting_container']" position="after">
+                    <h2>Importación de XML</h2>
+                    <div class="row mt16 o_settings_container" name="config_importacion_xml">
+                        <div class="col-12 col-lg-6 o_setting_box" id="config_importacion_xml_child"
+                            title="Configuraciones para importación de XML">
+                            <div class="o_setting_left_pane"/>
+                            <div class="o_setting_right_pane">
+                                <span class="o_form_label">Diferencia Máxima permitida</span>
+                                <div class="text-muted">
+                                    Máximo permitido entre el XML y la factura de proveedor. Por defecto 0.0
+                                </div>
+                                <div class="content-group">
+                                    <div class="row mt16">
+                                        <label string="Diferencia máxima" for="permited_margin" class="col-lg-3 o_light_label"/>
+                                        <field name="permited_margin" />
+                                    </div>
+                                    <div class="row">
+                                        <label string="Cuenta contable para balance" for="cuenta_contable_diferencia" class="col-lg-3 o_light_label" />
+                                        <field name="cuenta_contable_diferencia" domain="[('account_type','in', ['expense','income_other'])]"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </xpath>
+            </field>
+        </record>
+    </data>
+</odoo>
