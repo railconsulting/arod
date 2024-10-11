@@ -189,6 +189,18 @@ class WorkEntryWizard(models.TransientModel):
                     wizard_lines.create(line)
         else:
             raise ValidationError("Debe elegir un metodo de importacion de datos")
+    
+        return {
+            'name': 'Registro entradas de trabajo',
+            'view_mode': 'form',
+            'view_id': False,
+            'res_model': self._name,
+            'domain': [],
+            'context': dict(self._context, active_ids=self.ids),
+            'type': 'ir.actions.act_window',
+            'target': 'new',
+            'res_id': self.id,                
+        }
 
 
 

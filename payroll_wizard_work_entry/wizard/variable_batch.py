@@ -107,7 +107,8 @@ class WorkEntryWizard(models.TransientModel):
                 raise ValidationError("El archivo cargado no esta en el formato correcto, por favor revisa tu archivo.\n"\
                                       +"CONSEJO: Da click en guardar como archivo Libro de Excel(*.xlsx)")
         skipped_line_no = []
-        ncounter = 2
+        ncounter = 1
+        skip_header = True
         wizard_lines = self.env['input.entry.wizard.payslips']
         payslips = self.env['hr.payslip'].search([('payslip_run_id','=', self.payslip_run_id.id)])
         pay_inputs = self.env['hr.payslip.input'].search([
@@ -121,6 +122,10 @@ class WorkEntryWizard(models.TransientModel):
             #0 empleado
             #1 Codigo/Nombre input
             #2 Monto
+            if skip_header:
+                skip_header = False
+                ncounter += 1
+                continue
             vals = {
                 'wizard_id': self.id
             }
@@ -158,6 +163,7 @@ class WorkEntryWizard(models.TransientModel):
                     'amount': amount 
                 })
             lines.append(vals)
+            ncounter += 1
         if skipped_line_no:
             raise ValidationError(str(skipped_line_no))
         if self.method == 'create':
@@ -183,6 +189,17 @@ class WorkEntryWizard(models.TransientModel):
                     wizard_lines.create(line)
         else:
             raise ValidationError("Debe elegir un metodo de importacion de datos")
+        return {
+            'name': 'Registro de variables',
+            'view_mode': 'form',
+            'view_id': False,
+            'res_model': self._name,
+            'domain': [],
+            'context': dict(self._context, active_ids=self.ids),
+            'type': 'ir.actions.act_window',
+            'target': 'new',
+            'res_id': self.id,                
+        }
 
 
 
