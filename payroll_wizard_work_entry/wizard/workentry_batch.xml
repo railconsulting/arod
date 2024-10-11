@@ -15,10 +15,11 @@
                             <field name="work_entry_type_id"   options='{"create":False,"create_edit": False,"no_open": True, "no_quick_create": True}'
                                         attrs="{'invisible':[('record_type','!=','manual')]}"/>
                             <field name="xls_file" attrs="{'invisible':[('record_type','=','manual')]}"/>
+                            <button string="Cargar" type="object" name="import_xls" attrs="{'invisible':['|',('xls_file','=',False),('record_type','=','manual')]}" class="oe_highlight"/>
                         </group>
                         <group>
                             <field name="record_type" widget="radio" options="{'horizontal': true}"/>
-                            <field name="method" attrs="{'invisible'[('record_type','=','manual')]}"/>
+                            <field name="method" attrs="{'invisible':[('record_type','=','manual')]}"/>
                             <button name="get_work_payslips" type="object"  string="Obtener registros"  attrs="{'invisible':[('record_type','!=','manual')]}"/>
                             <button name="download_excel_file" string="Descargar plantilla"
                                         type="object" attrs="{'invisible':[('record_type','=','manual')]}"/>
