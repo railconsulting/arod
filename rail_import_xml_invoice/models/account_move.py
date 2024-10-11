@@ -39,6 +39,30 @@ class AccountMove(models.Model):
         copy=False,
     )
 
+    def get_diferencia_maxima_permitida(self):
+        return float(self.env['ir.config_parameter'].sudo().get_param(
+            'rail_import_xml.diferencia_maxima_permitida'
+        ))
+
+    def get_cuenta_contable_diferencia(self):
+        return int(self.env['ir.config_parameter'].sudo().get_param(
+            'rail_import_xml.cuenta_diferencia_fact_proveedor'
+        ))
+
+    def registrar_diferencia_saldos_cuenta(self, diff_balance):
+        diff_balance_line = {
+            'name': "Balance de cuentas por recibido en factura contra xml",
+            'balance': diff_balance,
+            'partner_id': self.partner_id.id,
+            'move_id': self.id,
+            'currency_id': self.currency_id.id,
+            'company_id': self.company_id.id,
+            'company_currency_id': self.company_id.currency_id.id,
+            'display_type': 'tax',
+            'account_id': self.get_cuenta_contable_diferencia(),
+        }
+        self.env['account.move.line'].create(diff_balance_line)
+
     def action_post(self):
         if self.xml_file:
             precision = self.currency_id.decimal_places
@@ -147,11 +171,16 @@ class AccountMove(models.Model):
 
                 if not float_is_zero(self.amount_total - float(tree.get('Total')),
                                      precision_digits=precision):
-                    raise UserError(
-                        _("The total amount (%s) of the invoice does not match the total "
-                          "amount (%s) of the attached xml") %
-                        (str(self.amount_total), tree.get('Total'))
-                    )
+                    # Agregada validación para permitir diferencia máxima de acuerdo a configuración
+                    max_diff = self.get_diferencia_maxima_permitida()
+                    diferencia = round(self.amount_total - round(float(tree.get('Total')), 2), 2)
+                    if diferencia > max_diff:
+                        raise UserError(
+                            _("La diferencia entre el total del xml y el total de la "
+                              "factura supera el máximo permitido de %s.") % (str(max_diff))
+                        )
+                    else:
+                        self.registrar_diferencia_saldos_cuenta(diferencia)
 
                 if self.currency_id.name != tree.get('Moneda'):
                     raise UserError(
