@@ -77,7 +77,7 @@ class AccountMove(models.Model):
                 fobj.close()
                 file_xml = open(fname, "r")
                 tree = objectify.fromstring(file_xml.read().encode())
-                _logger.critical("try")
+                # _logger.critical("try")
             except:
                 try:
                     recovering_parser = etree.XMLParser(recover=True)
@@ -161,18 +161,27 @@ class AccountMove(models.Model):
                 sub_total = float(tree.get('SubTotal')) - (
                     float(tree.get('Descuento')) if tree.get('Descuento') else 0)
 
+                max_diff = self.get_diferencia_maxima_permitida()
                 if not float_is_zero(self.amount_untaxed - sub_total,
                                      precision_digits=precision):
-                    raise UserError(
-                        _("The sub-total amount (%s) of the invoice does not match the "
-                          "sub-total amount (%s) of the attached xml") %
-                        (str(self.amount_untaxed), sub_total)
-                    )
+                    # raise UserError(
+                    #     _("The sub-total amount (%s) of the invoice does not match the "
+                    #       "sub-total amount (%s) of the attached xml") %
+                    #     (str(self.amount_untaxed), sub_total)
+                    # )
+                    # Agregada validación para permitir diferencia máxima de acuerdo a configuración
+                    diferencia_subtotal = round(self.amount_total - round(float(tree.get('Total')), 2), 2)
+                    if diferencia_subtotal > max_diff:
+                        raise UserError(
+                            _("La diferencia entre el total del xml y el total de la "
+                              "factura supera el máximo permitido de %s.") % (str(max_diff))
+                        )
+                    else:
+                        self.registrar_diferencia_saldos_cuenta(diferencia_subtotal)
 
                 if not float_is_zero(self.amount_total - float(tree.get('Total')),
                                      precision_digits=precision):
                     # Agregada validación para permitir diferencia máxima de acuerdo a configuración
-                    max_diff = self.get_diferencia_maxima_permitida()
                     diferencia = round(self.amount_total - round(float(tree.get('Total')), 2), 2)
                     if diferencia > max_diff:
                         raise UserError(
@@ -194,7 +203,7 @@ class AccountMove(models.Model):
                           "attachment (%s)") % (str(self.invoice_date), date,)
                     )
                 uuid = tfd.get('UUID')
-                invoice = self.env['account.move'].search([('ref', '=', uuid)], limit=1)
+                invoice = self.env['account.move'].sudo().search([('ref', '=', uuid)], limit=1)
                 if invoice:
                     raise UserError(
                         _("El UUID del xml cargado ya se encuentra registrado. \n"
