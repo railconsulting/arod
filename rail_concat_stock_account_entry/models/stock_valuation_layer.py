@@ -29,6 +29,7 @@ class StockValuationLayers(models.Model):
             for key, group in groupby(am_vals, key=itemgetter('partner_id', 'date', 'journal_id')):
                 group_dict = dict(zip(['partner_id', 'date', 'journal_id'], key))
                 group_dict['line_ids'] = []
+                group_dict['invoice_date'] = group_dict.get('date')
                 refs_set = set()
 
                 for entry in group:
@@ -38,7 +39,6 @@ class StockValuationLayers(models.Model):
 
                 group_dict['ref'] = ','.join(refs_set)
                 grouped_entries.append(group_dict)
-            _logger.critical(grouped_entries)
             account_moves = self.env['account.move'].sudo().create(grouped_entries)
             #---- End
             #account_moves = self.env['account.move'].sudo().create(am_vals) NOTE: Commented for concat entries proposes this it's the original line
