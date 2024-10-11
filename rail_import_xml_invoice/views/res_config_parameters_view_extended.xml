@@ -15,7 +15,9 @@
                             <div class="o_setting_right_pane">
                                 <span class="o_form_label">Diferencia Máxima permitida</span>
                                 <div class="text-muted">
-                                    Máximo permitido entre el XML y la factura de proveedor. Por defecto 0.0
+                                    Máximo permitido entre el XML y la factura de proveedor. Por defecto 0.0. <br/>
+                                    El máximo permitido se validará con valores positivos y negativos, es decir,
+                                    al establecer 1, se validará con 1 y -1.
                                 </div>
                                 <div class="content-group">
                                     <div class="row mt16">

@@ -164,17 +164,16 @@ class AccountMove(models.Model):
                 max_diff = self.get_diferencia_maxima_permitida()
                 if not float_is_zero(self.amount_untaxed - sub_total,
                                      precision_digits=precision):
-                    # raise UserError(
-                    #     _("The sub-total amount (%s) of the invoice does not match the "
-                    #       "sub-total amount (%s) of the attached xml") %
-                    #     (str(self.amount_untaxed), sub_total)
-                    # )
-                    # Agregada validación para permitir diferencia máxima de acuerdo a configuración
-                    diferencia_subtotal = round(self.amount_total - round(float(tree.get('Total')), 2), 2)
-                    if diferencia_subtotal > max_diff:
+
+                    # Agregada validación para permitir diferencia máxima de subtotal de acuerdo a configuración
+                    diferencia_subtotal = round(self.amount_untaxed - round(sub_total, 2), 2)
+                    _logger.info(
+                        "Diferencia de montos subtotales en la factura %s es de %s" % (self.id, diferencia_subtotal)
+                    )
+                    if abs(diferencia_subtotal) > max_diff:
                         raise UserError(
-                            _("La diferencia entre el total del xml y el total de la "
-                              "factura supera el máximo permitido de %s.") % (str(max_diff))
+                            _("La diferencia entre el subtotal del xml y el subtotal de la "
+                              "factura es de %s, supera el máximo permitido de %s." % (diferencia_subtotal, max_diff))
                         )
                     else:
                         self.registrar_diferencia_saldos_cuenta(diferencia_subtotal)
@@ -183,10 +182,13 @@ class AccountMove(models.Model):
                                      precision_digits=precision):
                     # Agregada validación para permitir diferencia máxima de acuerdo a configuración
                     diferencia = round(self.amount_total - round(float(tree.get('Total')), 2), 2)
-                    if diferencia > max_diff:
+                    _logger.info(
+                        "Diferencia de montos totales en la factura %s es de %s" % (self.id, diferencia)
+                    )
+                    if abs(diferencia) > max_diff:
                         raise UserError(
                             _("La diferencia entre el total del xml y el total de la "
-                              "factura supera el máximo permitido de %s.") % (str(max_diff))
+                              "factura es de %s, supera el máximo permitido de %s.") % (diferencia, str(max_diff))
                         )
                     else:
                         self.registrar_diferencia_saldos_cuenta(diferencia)
