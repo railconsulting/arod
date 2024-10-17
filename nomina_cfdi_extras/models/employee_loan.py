@@ -75,7 +75,7 @@ class employee_loan(models.Model):
     employee_id = fields.Many2one('hr.employee',string='Empleado',default=_get_employee, required="1")
     department_id = fields.Many2one('hr.department',string='Departamento')
 #    hr_manager_id = fields.Many2one('hr.employee',string='Gerente RH')
-#    manager_id = fields.Many2one('hr.employee',string='Gerente de departamento', required="1")
+    manager_id = fields.Many2one('hr.employee',string='Gerente de departamento')
     job_id = fields.Many2one('hr.job',string="Puesto de trabajo")
     date = fields.Date('Fecha',default=fields.Date.today())
     start_date = fields.Date('Fecha de inicio',default=fields.Date.today(),required="1")
