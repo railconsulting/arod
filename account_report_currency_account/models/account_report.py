@@ -49,21 +49,25 @@ LINE_ID_HIERARCHY_DELIMITER = '|'
 class AccountReport(models.Model):
     _inherit = 'account.report'
 
+     
     def _init_options_partner(self, options, previous_options=None):
         
-        options['res_currency'] = (previous_options or {}).get('currency_filter', self.env['res.currency'].search([]).ids) 
-        options['account_account'] = (previous_options or {}).get('account_filter', []) 
-        
+        if self.env.ref('account_reports.aged_receivable_report').id  == options['report_id'] or  self.env.ref('account_reports.aged_payable_report').id  == options['report_id']:
+            options['res_currency'] = (previous_options or {}).get('currency_filter', self.env['res.currency'].search([]).ids) 
+            options['account_account'] = (previous_options or {}).get('account_filter', []) 
+            options['new_filters'] = True
         return super()._init_options_partner(options, previous_options=None)
         
     def _get_options_domain(self, options, date_scope):
         self.ensure_one()
         
         domain = super()._get_options_domain(options, date_scope)
-        if  options['res_currency']:
-            domain += ['&',('currency_id','in',options['res_currency'] )]
-        if  options['account_account']:
-            
-            domain += ['&',('account_id','in',options['account_account'] )]
+        if self.env.ref('account_reports.aged_receivable_report').id  == options['report_id'] or  self.env.ref('account_reports.aged_payable_report').id  == options['report_id']:
+            options['new_filters'] = True
+            if  options['res_currency']:
+                domain += ['&',('currency_id','in',options['res_currency'] )]
+            if  options['account_account']:
+                
+                domain += ['&',('account_id','in',options['account_account'] )]
         
         return domain

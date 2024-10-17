@@ -30,8 +30,8 @@
         <div class="btn-group dropdown o_account_reports_filter_analytic" t-if="report.filter_analytic or report.filter_analytic_groupby">
             <t t-call="account_reports.search_template_analytic"/>
         </div>
-
-        <button type="button" class="o-no-caret btn btn-secondary dropdown-toggle currency_filter_changed" data-bs-toggle="dropdown">
+        <t t-if="'new_filters' in options.keys()">
+              <button type="button" class="o-no-caret btn btn-secondary dropdown-toggle currency_filter_changed" data-bs-toggle="dropdown">
             <span class="fa fa-folder-open"/> Currency
             </button>
             <ul  class="dropdown-menu o_filter_menu" role="menu">
@@ -45,6 +45,9 @@
                 <li class="o_account_report_search js_account_account_filter_m2m"/>
                 
             </ul>
+        </t>
+       
+      
         
       
         
