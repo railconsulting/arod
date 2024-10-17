@@ -28,7 +28,7 @@ class dev_skip_installment(models.Model):
     date = fields.Date('Fecha', default=fields.datetime.now())
     user_id = fields.Many2one('res.users',string='Usuario', default=_get_default_user)
     notes = fields.Text('Razón', required="1")
-#    manager_id = fields.Many2one('hr.employee',string='Gerente de departamento', required="1")
+    manager_id = fields.Many2one('hr.employee',string='Gerente de departamento')
     skip_installment_url = fields.Char('URL', compute='get_url')
 #    hr_manager_id = fields.Many2one('hr.employee',string='Gerente de RH')
     state = fields.Selection([('draft','Borrador'),
