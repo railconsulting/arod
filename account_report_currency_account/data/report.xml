@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<odoo>
+    <!-- Inherit is not working instead overwriete the entire view  account_reports.search_template-->
+    <template id="search_template_currency" inherit_id="account_reports.search_template" primary="True" >
+       
+         <xpath expr="//div[@id='variant_choice_option']" position="after">
+             <button type="button" class="o-no-caret btn btn-secondary dropdown-toggle analytic_groupby_filter_changed" data-bs-toggle="dropdown">
+            <span class="fa fa-folder-open"/> Currency
+            </button>
+            <ul  class="dropdown-menu o_filter_menu" role="menu">
+                <li class="o_account_report_search js_account_currency_filter_m2m"/>
+                
+            </ul>
+        </xpath>
+    </template>
+
+       <template id="account_reports.search_template">
+        <div class="btn-group dropdown o_account_reports_filter_date" t-if="options.get('date') != None">
+            <t t-call="account_reports.search_template_date_filter"/>
+        </div>
+        <div class="btn-group dropdown o_account_reports_filter_date_cmp" t-if="report.filter_period_comparison">
+            <t t-call="account_reports.search_template_comparison"/>
+        </div>
+        <div class="btn-group dropdown o_account_reports_filter_journals" t-if="options.get('journals') != None">
+            <t t-call="account_reports.search_template_journals"/>
+        </div>
+        <div class="btn-group dropdown o_account_reports_filter_account_type" t-if="options.get('account_type') != None">
+            <t t-call="account_reports.search_template_account_type"/>
+        </div>
+        <div class="btn-group dropdown o_account_reports_filter_analytic" t-if="report.filter_analytic or report.filter_analytic_groupby">
+            <t t-call="account_reports.search_template_analytic"/>
+        </div>
+
+        <button type="button" class="o-no-caret btn btn-secondary dropdown-toggle currency_filter_changed" data-bs-toggle="dropdown">
+            <span class="fa fa-folder-open"/> Currency
+            </button>
+            <ul  class="dropdown-menu o_filter_menu" role="menu">
+                <li class="o_account_report_search js_account_currency_filter_m2m"/>
+                
+            </ul>
+         <button type="button" class="o-no-caret btn btn-secondary dropdown-toggle account_account_filter_changed" data-bs-toggle="dropdown">
+            <span class="fa fa-folder-open"/> Account
+            </button>
+            <ul  class="dropdown-menu o_filter_menu" role="menu">
+                <li class="o_account_report_search js_account_account_filter_m2m"/>
+                
+            </ul>
+        
+      
+        
+        <div class="btn-group dropdown o_account_reports_filter_ir_filters" t-if="options['available_horizontal_groups']">
+            <t t-call="account_reports.search_template_horizontal_groups"/>
+        </div>
+        <div class="btn-group dropdown o_account_reports_filter_groupby_fields" t-if="options.get('groupby_fields')">
+            <t t-call="account_reports.search_template_groupby_fields"/>
+        </div>
+        <div class="btn-group dropdown o_account_reports_filter_partner" t-if="options.get('partner')">
+            <t t-call="account_reports.search_template_partner"/>
+        </div>
+        <div id="extra_options_dropdown" class="btn-group dropdown o_account_reports_filter_bool" t-if="options.get('report_cash_basis') != None or report.filter_show_draft or report.filter_unfold_all or report.filter_unreconciled">
+            <t t-call="account_reports.search_template_extra_options"/>
+        </div>
+        <div id="variant_choice_option" class="btn-group dropdown">
+            <t t-call="account_reports.search_template_variants"/>
+        </div>
+        <div id="tax_unit_option" class="btn-group dropdown">
+            <t t-call="account_reports.search_template_tax_unit"/>
+        </div>
+        <div id="fiscal_position_choice_option" class="btn-group dropdown o_account_reports_filter_fiscal_position"
+            t-if="len(options['available_vat_fiscal_positions']) > (0 if options['allow_domestic'] else 1) and 'multi_company' not in options">
+            <t t-call="account_reports.search_template_fiscal_position_choser"/>
+        </div>
+    </template>
+
+
+</odoo>
