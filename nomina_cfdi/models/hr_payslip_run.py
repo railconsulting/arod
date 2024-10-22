@@ -47,6 +47,8 @@ class HrPayslipRun(models.Model):
         for r in self:
             for l in r.slip_ids:
                 l.compute_sheet()
+            if not r.slip_ids.filtered(lambda x:  x.state != "verify"):
+                r.state = "verify"
 
     @api.onchange('tipo_configuracion')
     def _set_periodicidad(self):
