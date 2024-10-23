@@ -1078,9 +1078,10 @@ class HrPayslip(models.Model):
             lineas_de_otros.append({
                 'TipoOtrosPagos': "002",
                 'Clave': "002",
-                'Concepto': "Subsidio para el empleado",
+                'Concepto': "Subsidio para el empleo",
                 'ImporteExento': "0.00",
-                'SubsidioCausado': "0.00",
+                'SubsidioCausado': self.subsidio_periodo,
+#                'SubsidioCausado': "0.00",
             })
             subsidio_empleado = True
 #        otrospagos = {
