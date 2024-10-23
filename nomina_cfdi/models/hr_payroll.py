@@ -1073,7 +1073,8 @@ class HrPayslip(models.Model):
                         'ImporteGravado': '0',
                         'ImporteExento': round(line.total,2)
                         })
-        if self.employee_id.tipo_contrato != '09' and not self.struct_id.asimilados:
+        if self.employee_id.tipo_contrato != '01' or self.employee_id.tipo_contrato != '02' or self.employee_id.tipo_contrato != '03' or self.employee_id.tipo_contrato != '04' or self.employee_id.tipo_contrato != '05' or self.employee_id.tipo_contrato != '06' or self.employee_id.tipo_contrato != '07' or self.employee_id.tipo_contrato != '08' and not self.struct_id.asimilados:
+#        if self.employee_id.tipo_contrato != '09' and not self.struct_id.asimilados:
             lineas_de_otros.append({
                 'TipoOtrosPagos': "002",
                 'Clave': "002",
