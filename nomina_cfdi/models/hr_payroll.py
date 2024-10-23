@@ -1084,11 +1084,11 @@ class HrPayslip(models.Model):
 #                'SubsidioCausado': "0.00",
             })
             subsidio_empleado = True
-#        otrospagos = {
-#            'otrospagos': {
-#                    'Totalotrospagos': payslip_total_TOP,
-#            },
-#        }
+        otrospagos = {
+            'otrospagos': {
+                    'Totalotrospagos': payslip_total_TOP,
+            },
+        }
         #raise ValidationError(str(lineas_de_otros))
         otrospagos.update({'otros_pagos': lineas_de_otros, 'no_otros_pagos': len(otrospagos_lines)})
         request_params.update({'otros_pagos': otrospagos})
